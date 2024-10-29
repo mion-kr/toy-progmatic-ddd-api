@@ -1,0 +1,253 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["product", "schedule", "reservation", "auth", "user", "partners", "common"]
+}
+
+enum RoleType {
+  USER
+  PARTNER
+  ADMIN
+
+  @@map("ROLE_TYPE")
+  @@schema("auth")
+}
+
+
+model User {
+  snsId           String @id
+  password        String
+  email           String @unique
+  nickName        String? @map("nick_name")
+  profileImage    String? @map("profile_image")
+
+  reservation     Reservation[]
+
+  createdAt       DateTime @default(now())
+  createdBy       String
+  updatedAt       DateTime @updatedAt
+  updatedBy       String?
+  deletedAt       DateTime?
+  deletedBy       String?
+
+  @@map("USER") // 실제 테이블 이름
+  @@schema("user")
+}
+
+model Partners {
+  id              String @id @default(cuid())
+  name            String
+  businessNumber  String @unique @map("business_number")
+  product         Product[]
+  createdAt       DateTime @default(now())
+  createdBy       String
+  updatedAt       DateTime @updatedAt
+  updatedBy       String?
+  deletedAt       DateTime?
+  deletedBy       String?
+
+  @@map("PARTNERS")
+  @@schema("partners")
+}
+
+enum ProductDisplayStatus {
+  DISPLAY       // 노출
+  HIDE          // 미노출
+
+  @@map("PRODUCT_STATUS")
+  @@schema("product")
+}
+
+model Product {
+  id              String @id @default(cuid())
+  name            String
+  price           Int
+  description     String?
+  productFish     ProductFish[]
+  operationTime   String @map("operation_time")
+  headCount       Int @map("head_count")
+  minHeadCount    Int @map("min_head_count")
+
+  displayStatus   ProductDisplayStatus @default(DISPLAY) @map("display_status")
+
+  partnersId      String
+  partners        Partners @relation(fields: [partnersId], references: [id])
+  schedule        Schedule[]
+
+  createdAt       DateTime @default(now())
+  createdBy       String
+  updatedAt       DateTime @updatedAt
+  updatedBy       String?
+  deletedAt       DateTime?
+  deletedBy       String?
+
+  @@map("PRODUCT")
+  @@schema("product")
+}
+
+model ProductFish {
+  id              String @id @default(cuid())
+  productId       String
+  fishId          String
+  product         Product @relation(fields: [productId], references: [id])
+
+  createdAt       DateTime @default(now())
+  createdBy       String
+  updatedAt       DateTime @updatedAt
+  updatedBy       String?
+  deletedAt       DateTime?
+  deletedBy       String?
+
+  @@map("PRODUCT_FISH")
+  @@schema("product")
+}
+
+enum ScheduleStatus {
+  OPEN            // 예약 가능
+  CLOSE           // 예약 불가
+  WAITING_LAUNCH  // 출조 대기
+  COMPLETED       // 완료
+
+  @@map("SCHEDULE_STATUS")
+  @@schema("schedule")
+}
+
+model Schedule {
+  id              String @id @default(cuid())
+  productId       String
+  product         Product @relation(fields: [productId], references: [id])
+  fishingDate     DateTime @map("fishing_date")
+  name            String
+  price           Int
+  description     String?
+  operationTime   String @map("operation_time")
+  allocationTime  String @map("allocation_time")
+  headCount       Int @map("head_count")
+  minHeadCount    Int @map("min_head_count")
+
+  status          ScheduleStatus @default(OPEN)
+
+  scheduleFish    ScheduleFish[]
+  reservation     Reservation[]
+
+  createdAt       DateTime @default(now())
+  createdBy       String
+  updatedAt       DateTime @updatedAt
+  updatedBy       String?
+  deletedAt       DateTime?
+  deletedBy       String?
+
+  @@map("SCHEDULE")
+  @@schema("schedule")
+}
+
+model ScheduleFish {
+  id              String @id @default(cuid())
+  scheduleId      String
+  fishId          String
+  schedule        Schedule @relation(fields: [scheduleId], references: [id])
+
+  @@map("SCHEDULE_FISH")
+  @@schema("schedule")
+}
+
+enum ReservationStatus {
+  PAYMENT_WAITING   // 결제 대기
+  COMPLETED         // 완료
+  CANCELLED
+
+  @@map("RESERVATION_STATUS")
+  @@schema("reservation")
+}
+
+model Reservation {
+  id              String @id @default(cuid())
+  scheduleId      String @map("schedule_id")
+  headCount       Int @map("head_count")
+  userId          String @map("user_id")
+  user            User @relation(fields: [userId], references: [snsId])
+
+  status          ReservationStatus @default(PAYMENT_WAITING)
+
+  schedule        Schedule @relation(fields: [scheduleId], references: [id])
+  payment         Payment[]
+
+  createdAt       DateTime @default(now())
+  createdBy       String
+  updatedAt       DateTime @updatedAt
+  updatedBy       String?
+  deletedAt       DateTime?
+  deletedBy       String?
+
+  @@map("RESERVATION")
+  @@schema("reservation")
+}
+
+model Payment {
+  id              String @id @default(cuid())
+  reservationId   String @map("reservation_id")
+  reservation     Reservation @relation(fields: [reservationId], references: [id])
+  price           Int @map("price")
+
+  refund          Refund[]
+
+  createdAt       DateTime @default(now())
+  createdBy       String
+  updatedAt       DateTime @updatedAt
+  updatedBy       String?
+  deletedAt       DateTime?
+  deletedBy       String?
+
+  @@map("PAYMENT")
+  @@schema("reservation")
+}
+
+model Refund {
+  id              String @id @default(cuid())
+  paymentId       String @map("payment_id")
+  payment         Payment @relation(fields: [paymentId], references: [id])
+  price           Int @map("price")
+  headCount       Int @map("head_count")
+
+  @@map("REFUND")
+  @@schema("reservation")
+}
+
+model Code {
+  code            String 
+  name            String
+  codeGroupId     String 
+  codeGroup       CodeGroup @relation(fields: [codeGroupId], references: [codeGroup])
+
+  createdAt       DateTime @default(now())
+  createdBy       String
+  updatedAt       DateTime @updatedAt
+  updatedBy       String?
+  deletedAt       DateTime?
+  deletedBy       String?
+
+  @@id([code, codeGroupId])
+  @@map("CODE")
+  @@schema("common")
+}
+
+model CodeGroup {
+  codeGroup       String @id @map("code_group")
+  name            String
+  code            Code[]
+
+  createdAt       DateTime @default(now())
+  createdBy       String
+  updatedAt       DateTime @updatedAt
+  updatedBy       String?
+  deletedAt       DateTime?
+  deletedBy       String?
+
+  @@map("CODE_GROUP")
+  @@schema("common")
+}
