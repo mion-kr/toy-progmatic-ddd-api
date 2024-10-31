@@ -66,6 +66,14 @@ export class UserController {
    * 사용자 수정
    */
   @Patch(':snsId')
+  @ApiResponse({
+    status: 200,
+    description: '사용자 수정 성공',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '사용자를 찾을 수 없습니다.',
+  })
   async update(@Param('snsId') snsId: string, @Body() dto: UpdateUserDto) {
     const user = await this.userService.update(snsId, dto);
     return new UpdateUserResponse(user);
@@ -75,6 +83,14 @@ export class UserController {
    * 사용자 삭제
    */
   @Delete(':snsId')
+  @ApiResponse({
+    status: 200,
+    description: '사용자 삭제 성공',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '사용자를 찾을 수 없습니다.',
+  })
   async delete(@Param('snsId') snsId: string) {
     const user = await this.userService.delete(snsId);
     return new DeleteUserResponse(user);
