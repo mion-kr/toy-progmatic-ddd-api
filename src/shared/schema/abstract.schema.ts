@@ -1,3 +1,12 @@
+export type AbstractOptionalProps = {
+  createdAt?: Date;
+  createdBy?: string;
+  updatedAt?: Date;
+  updatedBy?: string;
+  deletedAt?: Date;
+  deletedBy?: string;
+};
+
 export abstract class AbstractSchema {
   createdAt: Date;
   createdBy: string;

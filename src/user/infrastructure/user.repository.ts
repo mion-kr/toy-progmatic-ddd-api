@@ -31,6 +31,8 @@ export class UserRepository implements IUserRepository {
         profileImage: user.profileImage,
         createdBy: user.createdBy,
         createdAt: user.createdAt,
+        updatedBy: user.updatedBy,
+        updatedAt: user.updatedAt,
       },
     });
     return UserEntity.create(createdUser);

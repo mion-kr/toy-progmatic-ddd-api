@@ -26,12 +26,12 @@ model User {
   nickName        String? @map("nick_name")
   profileImage    String? @map("profile_image")
 
-  reservation     Reservation[]
+  reservations     Reservation[]
 
   createdAt       DateTime @default(now()) @map("created_at")
   createdBy       String @map("created_by")
   updatedAt       DateTime @updatedAt @map("updated_at")
-  updatedBy       String? @map("updated_by")
+  updatedBy       String @map("updated_by")
   deletedAt       DateTime? @map("deleted_at")
   deletedBy       String? @map("deleted_by")
 
@@ -43,11 +43,11 @@ model Partners {
   id              String @id @default(cuid())
   name            String
   businessNumber  String @unique @map("business_number")
-  product         Product[]
+  products        Product[]
   createdAt       DateTime @default(now()) @map("created_at")
   createdBy       String @map("created_by")
   updatedAt       DateTime @updatedAt @map("updated_at")
-  updatedBy       String? @map("updated_by")
+  updatedBy       String @map("updated_by")
   deletedAt       DateTime? @map("deleted_at")
   deletedBy       String? @map("deleted_by")
 
@@ -68,7 +68,7 @@ model Product {
   name            String
   price           Int
   description     String?
-  productFish     ProductFish[]
+  productFishes   ProductFish[]
   operationTime   String @map("operation_time")
   headCount       Int @map("head_count")
   minHeadCount    Int @map("min_head_count")
@@ -77,12 +77,12 @@ model Product {
 
   partnersId      String
   partners        Partners @relation(fields: [partnersId], references: [id])
-  schedule        Schedule[]
+  schedules       Schedule[]
 
   createdAt       DateTime @default(now()) @map("created_at")
   createdBy       String @map("created_by")
   updatedAt       DateTime @updatedAt @map("updated_at")
-  updatedBy       String? @map("updated_by")
+  updatedBy       String @map("updated_by")
   deletedAt       DateTime? @map("deleted_at")
   deletedBy       String? @map("deleted_by")
 
@@ -99,7 +99,7 @@ model ProductFish {
   createdAt       DateTime @default(now()) @map("created_at")
   createdBy       String @map("created_by")
   updatedAt       DateTime @updatedAt @map("updated_at")
-  updatedBy       String? @map("updated_by")
+  updatedBy       String @map("updated_by")
   deletedAt       DateTime? @map("deleted_at")
   deletedBy       String? @map("deleted_by")
 
@@ -132,13 +132,13 @@ model Schedule {
 
   status          ScheduleStatus @default(OPEN)
 
-  scheduleFish    ScheduleFish[]
-  reservation     Reservation[]
+  scheduleFishes  ScheduleFish[]
+  reservations    Reservation[]
 
   createdAt       DateTime @default(now()) @map("created_at")
   createdBy       String @map("created_by")
   updatedAt       DateTime @updatedAt @map("updated_at")
-  updatedBy       String? @map("updated_by")
+  updatedBy       String @map("updated_by")
   deletedAt       DateTime? @map("deleted_at")
   deletedBy       String? @map("deleted_by")
 
@@ -151,6 +151,13 @@ model ScheduleFish {
   scheduleId      String
   fishId          String
   schedule        Schedule @relation(fields: [scheduleId], references: [id])
+
+  createdAt       DateTime @default(now()) @map("created_at")
+  createdBy       String @map("created_by")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  updatedBy       String @map("updated_by")
+  deletedAt       DateTime? @map("deleted_at")
+  deletedBy       String? @map("deleted_by")
 
   @@map("SCHEDULE_FISH")
   @@schema("schedule")
@@ -175,12 +182,12 @@ model Reservation {
   status          ReservationStatus @default(PAYMENT_WAITING)
 
   schedule        Schedule @relation(fields: [scheduleId], references: [id])
-  payment         Payment[]
+  payments        Payment[]
 
   createdAt       DateTime @default(now()) @map("created_at")
   createdBy       String @map("created_by")
   updatedAt       DateTime @updatedAt @map("updated_at")
-  updatedBy       String? @map("updated_by")
+  updatedBy       String @map("updated_by")
   deletedAt       DateTime? @map("deleted_at")
   deletedBy       String? @map("deleted_by")
 
@@ -194,12 +201,12 @@ model Payment {
   reservation     Reservation @relation(fields: [reservationId], references: [id])
   price           Int @map("price")
 
-  refund          Refund[]
+  refunds         Refund[]
 
   createdAt       DateTime @default(now()) @map("created_at")
   createdBy       String @map("created_by")
   updatedAt       DateTime @updatedAt @map("updated_at")
-  updatedBy       String? @map("updated_by")
+  updatedBy       String @map("updated_by")
   deletedAt       DateTime? @map("deleted_at")
   deletedBy       String? @map("deleted_by")
 
@@ -227,7 +234,7 @@ model Code {
   createdAt       DateTime @default(now()) @map("created_at")
   createdBy       String @map("created_by")
   updatedAt       DateTime @updatedAt @map("updated_at")
-  updatedBy       String? @map("updated_by")
+  updatedBy       String @map("updated_by")
   deletedAt       DateTime? @map("deleted_at")
   deletedBy       String? @map("deleted_by")
 
@@ -244,7 +251,7 @@ model CodeGroup {
   createdAt       DateTime @default(now()) @map("created_at")
   createdBy       String @map("created_by")
   updatedAt       DateTime @updatedAt @map("updated_at")
-  updatedBy       String? @map("updated_by")
+  updatedBy       String @map("updated_by")
   deletedAt       DateTime? @map("deleted_at")
   deletedBy       String? @map("deleted_by")
 

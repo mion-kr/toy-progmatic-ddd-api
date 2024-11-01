@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../shared/prisma/prisma.service';
 import { PartnersEntity } from '../domain/partners.entity';
 import { IPartnersRepository } from '../domain/partners.repository.interface';
@@ -7,19 +8,24 @@ import { IPartnersRepository } from '../domain/partners.repository.interface';
 export class PartnersRepository implements IPartnersRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async findAll(dto: {
-    page: number;
-    limit: number;
-  }): Promise<{ datas: PartnersEntity[]; count: number }> {
+  async findAll(
+    dto: {
+      page: number;
+      limit: number;
+    },
+    tx?: Prisma.TransactionClient,
+  ): Promise<{ datas: PartnersEntity[]; count: number }> {
+    const prisma = tx ?? this.prismaService;
+
     const where = { deletedAt: null };
 
-    const partners = await this.prismaService.partners.findMany({
+    const partners = await prisma.partners.findMany({
       where,
       skip: (dto.page - 1) * dto.limit,
       take: dto.limit,
     });
 
-    const totalCount = await this.prismaService.partners.count({
+    const totalCount = await prisma.partners.count({
       where,
     });
 
@@ -29,8 +35,13 @@ export class PartnersRepository implements IPartnersRepository {
     };
   }
 
-  async findById(id: string): Promise<PartnersEntity | null> {
-    const partners = await this.prismaService.partners.findUnique({
+  async findById(
+    id: string,
+    tx?: Prisma.TransactionClient,
+  ): Promise<PartnersEntity | null> {
+    const prisma = tx ?? this.prismaService;
+
+    const partners = await prisma.partners.findUnique({
       where: { id, deletedAt: null },
     });
     return partners ? PartnersEntity.create(partners) : null;
@@ -38,27 +49,42 @@ export class PartnersRepository implements IPartnersRepository {
 
   async findByBusinessNumber(
     businessNumber: string,
+    tx?: Prisma.TransactionClient,
   ): Promise<PartnersEntity | null> {
-    const partners = await this.prismaService.partners.findUnique({
+    const prisma = tx ?? this.prismaService;
+
+    const partners = await prisma.partners.findUnique({
       where: { businessNumber, deletedAt: null },
     });
     return partners ? PartnersEntity.create(partners) : null;
   }
 
-  async create(partners: PartnersEntity): Promise<PartnersEntity> {
-    const createdPartners = await this.prismaService.partners.create({
+  async create(
+    partners: PartnersEntity,
+    tx?: Prisma.TransactionClient,
+  ): Promise<PartnersEntity> {
+    const prisma = tx ?? this.prismaService;
+
+    const createdPartners = await prisma.partners.create({
       data: {
         name: partners.name,
         businessNumber: partners.businessNumber,
         createdBy: partners.createdBy,
         createdAt: partners.createdAt,
+        updatedBy: partners.updatedBy,
+        updatedAt: partners.updatedAt,
       },
     });
     return PartnersEntity.create(createdPartners);
   }
 
-  async update(partners: PartnersEntity): Promise<PartnersEntity> {
-    const updatedPartners = await this.prismaService.partners.update({
+  async update(
+    partners: PartnersEntity,
+    tx?: Prisma.TransactionClient,
+  ): Promise<PartnersEntity> {
+    const prisma = tx ?? this.prismaService;
+
+    const updatedPartners = await prisma.partners.update({
       where: { id: partners.id },
       data: {
         name: partners.name,

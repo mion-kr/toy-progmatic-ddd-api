@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PartnersEntity } from '../domain/partners.entity';
 import { PartnersRepository } from '../infrastructure/partners.repository';
 import { CreatePartnersDto } from '../presentation/dto/request/create.partners.dto';
@@ -46,8 +47,8 @@ export class PartnersService {
   /**
    * 파트너스 조회
    */
-  async findById(id: string) {
-    const partners = await this.partnersRepository.findById(id);
+  async findById(id: string, tx?: Prisma.TransactionClient) {
+    const partners = await this.partnersRepository.findById(id, tx);
 
     await this.commonPartnersService.validateNotFoundPartners(partners);
 
