@@ -87,13 +87,13 @@ export class ProductService {
    * 상품 수정
    */
   async update(id: string, dto: UpdateProductDto, updatedBy: string) {
-    const product = await this.productRepository.findById(id);
-
-    await this.commonProductService.validateNotFoundProduct(product);
-
-    await product.update({ ...dto, updatedBy: updatedBy });
-
     const updatedProduct = await this.prismaService.$transaction(async (tx) => {
+      const product = await this.productRepository.findById(id);
+
+      await this.commonProductService.validateNotFoundProduct(product);
+
+      await product.update({ ...dto, updatedBy: updatedBy });
+
       const updatedProduct = await this.productRepository.update(product, tx);
 
       if (dto.productFishes.length > 0) {

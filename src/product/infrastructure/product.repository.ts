@@ -52,8 +52,13 @@ export class ProductRepository implements IProductRepository {
     return product ? ProductEntity.fromPersistence(product) : null;
   }
 
-  async findByPartnersId(partnersId: string): Promise<ProductEntity[]> {
-    const products = await this.prismaService.product.findMany({
+  async findByPartnersId(
+    partnersId: string,
+    tx?: Prisma.TransactionClient,
+  ): Promise<ProductEntity[]> {
+    const prisma = tx ?? this.prismaService;
+
+    const products = await prisma.product.findMany({
       where: { partnersId, deletedAt: null },
       include: {
         partners: true,

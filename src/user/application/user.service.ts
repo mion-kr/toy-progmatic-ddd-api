@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../../shared/prisma/prisma.service';
 import { UserEntity } from '../domain/user.entity';
 import { UserRepository } from '../infrastructure/user.repository';
 import { CreateUserDto } from '../presentation/dto/request/create.user.dto';
@@ -10,63 +11,73 @@ export class UserService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly commonUserService: CommonUserService,
+
+    private readonly prismaService: PrismaService,
   ) {}
 
   /**
    * 사용자 생성
    */
   async create(dto: CreateUserDto) {
-    const saved_user = await this.userRepository.findBySnsId(dto.snsId);
+    return await this.prismaService.$transaction(async (tx) => {
+      const saved_user = await this.userRepository.findBySnsId(dto.snsId, tx);
 
-    await this.commonUserService.validateConflictSnsId(saved_user);
-    await this.commonUserService.validateConflictEmail(saved_user);
+      await this.commonUserService.validateConflictSnsId(saved_user);
+      await this.commonUserService.validateConflictEmail(saved_user);
 
-    const user = UserEntity.create({ ...dto, createdBy: dto.snsId });
+      const user = UserEntity.createNew({ ...dto, createdBy: dto.snsId });
 
-    const createdUser = await this.userRepository.create(user);
+      const createdUser = await this.userRepository.create(user, tx);
 
-    return createdUser;
+      return createdUser;
+    });
   }
 
   /**
    * 사용자 조회
    */
   async findBySnsId(snsId: string) {
-    const user = await this.userRepository.findBySnsId(snsId);
+    return await this.prismaService.$transaction(async (tx) => {
+      const user = await this.userRepository.findBySnsId(snsId, tx);
 
-    await this.commonUserService.validateNotFoundUser(user);
+      await this.commonUserService.validateNotFoundUser(user);
 
-    return user;
+      return user;
+    });
   }
 
   /**
    * 사용자 수정
    */
   async update(snsId: string, dto: UpdateUserDto) {
-    const user = await this.userRepository.findBySnsId(snsId);
+    return await this.prismaService.$transaction(async (tx) => {
+      const user = await this.userRepository.findBySnsId(snsId);
 
-    await this.commonUserService.validateNotFoundUser(user);
-    if (dto.email) {
-      await this.commonUserService.validateConflictEmail(user, dto.email);
-    }
+      await this.commonUserService.validateNotFoundUser(user);
+      if (dto.email) {
+        await this.commonUserService.validateConflictEmail(user, dto.email);
+      }
 
-    await user.update({ ...dto, updatedBy: snsId });
+      await user.update({ ...dto, updatedBy: snsId });
 
-    const updatedUser = await this.userRepository.update(user);
+      const updatedUser = await this.userRepository.update(user, tx);
 
-    return updatedUser;
+      return updatedUser;
+    });
   }
 
   /**
    * 사용자 삭제
    */
   async delete(snsId: string) {
-    const user = await this.userRepository.findBySnsId(snsId);
+    return await this.prismaService.$transaction(async (tx) => {
+      const user = await this.userRepository.findBySnsId(snsId, tx);
 
-    await this.commonUserService.validateNotFoundUser(user);
+      await this.commonUserService.validateNotFoundUser(user);
 
-    await user.delete({ deletedBy: snsId });
+      await user.delete(snsId);
 
-    return await this.userRepository.update(user);
+      return await this.userRepository.update(user, tx);
+    });
   }
 }

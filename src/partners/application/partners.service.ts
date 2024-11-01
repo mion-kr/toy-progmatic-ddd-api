@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { PrismaService } from '../../shared/prisma/prisma.service';
 import { PartnersEntity } from '../domain/partners.entity';
 import { PartnersRepository } from '../infrastructure/partners.repository';
 import { CreatePartnersDto } from '../presentation/dto/request/create.partners.dto';
@@ -12,28 +13,31 @@ export class PartnersService {
   constructor(
     private readonly partnersRepository: PartnersRepository,
     private readonly commonPartnersService: CommonPartnersService,
+
+    private readonly prismaService: PrismaService,
   ) {}
 
   /**
    * 파트너스 생성
    */
   async create(dto: CreatePartnersDto) {
-    const saved_partners = await this.partnersRepository.findByBusinessNumber(
-      dto.businessNumber,
-    );
+    return await this.prismaService.$transaction(async (tx) => {
+      const saved_partners = await this.partnersRepository.findByBusinessNumber(
+        dto.businessNumber,
+        tx,
+      );
 
-    await this.commonPartnersService.validateConflictBusinessNumber(
-      saved_partners,
-    );
+      await this.commonPartnersService.validateConflictBusinessNumber(
+        saved_partners,
+      );
 
-    const partners = PartnersEntity.create({
-      ...dto,
-      createdBy: dto.businessNumber,
+      const partners = PartnersEntity.createNew({
+        ...dto,
+        createdBy: dto.businessNumber,
+      });
+
+      return await this.partnersRepository.create(partners, tx);
     });
-
-    const createdPartners = await this.partnersRepository.create(partners);
-
-    return createdPartners;
   }
 
   /**
@@ -58,34 +62,36 @@ export class PartnersService {
   /**
    * 파트너스 수정
    */
-  async update(id: string, dto: UpdatePartnersDto, userId: string) {
-    const partners = await this.partnersRepository.findById(id);
+  async update(id: string, dto: UpdatePartnersDto, updatedBy: string) {
+    return await this.prismaService.$transaction(async (tx) => {
+      const partners = await this.partnersRepository.findById(id, tx);
 
-    await this.commonPartnersService.validateNotFoundPartners(partners);
-    if (dto.businessNumber) {
-      await this.commonPartnersService.validateConflictBusinessNumber(
-        partners,
-        dto.businessNumber,
-      );
-    }
+      await this.commonPartnersService.validateNotFoundPartners(partners);
+      if (dto.businessNumber) {
+        await this.commonPartnersService.validateConflictBusinessNumber(
+          partners,
+          dto.businessNumber,
+        );
+      }
 
-    await partners.update({ ...dto, updatedBy: userId });
+      await partners.update({ ...dto, updatedBy });
 
-    const updatedPartners = await this.partnersRepository.update(partners);
-
-    return updatedPartners;
+      return await this.partnersRepository.update(partners, tx);
+    });
   }
 
   /**
    * 파트너스 삭제
    */
-  async delete(id: string, userId: string) {
-    const partners = await this.partnersRepository.findById(id);
+  async delete(id: string, deletedBy: string) {
+    return await this.prismaService.$transaction(async (tx) => {
+      const partners = await this.partnersRepository.findById(id, tx);
 
-    await this.commonPartnersService.validateNotFoundPartners(partners);
+      await this.commonPartnersService.validateNotFoundPartners(partners);
 
-    await partners.delete({ deletedBy: userId });
+      await partners.delete(deletedBy);
 
-    return await this.partnersRepository.update(partners);
+      return await this.partnersRepository.update(partners, tx);
+    });
   }
 }

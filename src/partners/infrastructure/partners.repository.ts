@@ -30,7 +30,7 @@ export class PartnersRepository implements IPartnersRepository {
     });
 
     return {
-      datas: partners.map((partner) => PartnersEntity.create(partner)),
+      datas: partners.map((partner) => PartnersEntity.fromPersistence(partner)),
       count: totalCount,
     };
   }
@@ -44,7 +44,7 @@ export class PartnersRepository implements IPartnersRepository {
     const partners = await prisma.partners.findUnique({
       where: { id, deletedAt: null },
     });
-    return partners ? PartnersEntity.create(partners) : null;
+    return partners ? PartnersEntity.fromPersistence(partners) : null;
   }
 
   async findByBusinessNumber(
@@ -56,7 +56,7 @@ export class PartnersRepository implements IPartnersRepository {
     const partners = await prisma.partners.findUnique({
       where: { businessNumber, deletedAt: null },
     });
-    return partners ? PartnersEntity.create(partners) : null;
+    return partners ? PartnersEntity.fromPersistence(partners) : null;
   }
 
   async create(
@@ -75,7 +75,7 @@ export class PartnersRepository implements IPartnersRepository {
         updatedAt: partners.updatedAt,
       },
     });
-    return PartnersEntity.create(createdPartners);
+    return PartnersEntity.fromPersistence(createdPartners);
   }
 
   async update(
@@ -95,6 +95,6 @@ export class PartnersRepository implements IPartnersRepository {
         deletedAt: partners.deletedAt,
       },
     });
-    return PartnersEntity.create(updatedPartners);
+    return PartnersEntity.fromPersistence(updatedPartners);
   }
 }

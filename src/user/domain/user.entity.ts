@@ -1,6 +1,10 @@
 import { User } from '@prisma/client';
 import { Exclude, Expose } from 'class-transformer';
-import { AbstractSchema } from '../../shared/schema/abstract.schema';
+import * as cuid from 'cuid';
+import {
+  AbstractOptionalProps,
+  AbstractSchema,
+} from '../../shared/schema/abstract.schema';
 
 @Exclude() // 기본적으로 모든 속성 숨김
 export class UserEntity extends AbstractSchema implements User {
@@ -10,7 +14,7 @@ export class UserEntity extends AbstractSchema implements User {
   private _nickName: string;
   private _profileImage: string;
 
-  private constructor(props: Partial<User>) {
+  private constructor(props: User) {
     super(props);
     this.setSnsId(props.snsId);
     this._password = props.password;
@@ -19,10 +23,27 @@ export class UserEntity extends AbstractSchema implements User {
     this._profileImage = props.profileImage;
   }
 
-  static create(props: Partial<User>): UserEntity {
-    const entity = new UserEntity(props);
-    entity.setCreatedInfo(props.createdBy);
+  static createNew(
+    props: Omit<
+      User,
+      'id' | 'createdAt' | 'updatedBy' | 'updatedAt' | 'deletedBy' | 'deletedAt'
+    > &
+      AbstractOptionalProps,
+  ): UserEntity {
+    const entity = new UserEntity({
+      snsId: cuid(),
+      ...props,
+      createdAt: new Date(),
+      updatedBy: props.createdBy,
+      updatedAt: new Date(),
+      deletedAt: undefined,
+      deletedBy: undefined,
+    });
     return entity;
+  }
+
+  static fromPersistence(props: User): UserEntity {
+    return new UserEntity(props);
   }
 
   async update(props: Partial<User>): Promise<void> {
@@ -32,8 +53,8 @@ export class UserEntity extends AbstractSchema implements User {
     this.setUpdatedInfo(props.updatedBy);
   }
 
-  async delete(props: Partial<User>): Promise<void> {
-    this.setDeletedInfo(props.deletedBy);
+  async delete(deletedBy: string): Promise<void> {
+    this.setDeletedInfo(deletedBy);
   }
 
   private setSnsId(snsId: string) {
