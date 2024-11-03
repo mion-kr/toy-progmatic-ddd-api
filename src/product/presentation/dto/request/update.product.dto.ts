@@ -31,5 +31,5 @@ export class UpdateProductDto extends PartialType(
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => UpdateProductFishDto)
-  productFishes?: UpdateProductFishDto[];
+  fishes?: UpdateProductFishDto[];
 }

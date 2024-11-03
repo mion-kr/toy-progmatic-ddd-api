@@ -40,10 +40,10 @@ export class ProductService {
 
       const createdProduct = await this.productRepository.create(product, tx);
 
-      if (dto.productFishes.length > 0) {
+      if (dto.fishes.length > 0) {
         await this.productFishService.updateProductFishes(
           createdProduct.id,
-          dto.productFishes,
+          dto.fishes,
           createdBy,
           tx,
         );
@@ -73,7 +73,7 @@ export class ProductService {
 
       await this.commonProductService.validateNotFoundProduct(product);
 
-      product.productFishes = await this.productFishService.findAllByProductId(
+      product.fishes = await this.productFishService.findAllByProductId(
         product.id,
         tx,
       );
@@ -96,10 +96,10 @@ export class ProductService {
 
       const updatedProduct = await this.productRepository.update(product, tx);
 
-      if (dto.productFishes.length > 0) {
+      if (dto.fishes.length > 0) {
         await this.productFishService.updateProductFishes(
           updatedProduct.id,
-          dto.productFishes,
+          dto.fishes,
           updatedBy,
           tx,
         );

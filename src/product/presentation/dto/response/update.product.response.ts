@@ -10,7 +10,7 @@ export class UpdateProductResponse extends PickType(UpdateProductDto, [
   'headCount',
   'minHeadCount',
   'displayStatus',
-  'productFishes',
+  'fishes',
 ] as const) {
   id: string;
 
@@ -27,6 +27,6 @@ export class UpdateProductResponse extends PickType(UpdateProductDto, [
     this.minHeadCount = partial.minHeadCount;
     this.displayStatus = partial.displayStatus;
     this.partnersId = partial.partnersId;
-    this.productFishes = partial.productFishes;
+    this.fishes = partial.fishes;
   }
 }

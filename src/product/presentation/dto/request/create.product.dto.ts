@@ -73,5 +73,5 @@ export class CreateProductDto {
   @ValidateNested({ each: true })
   @Type(() => CreateProductFishDto)
   @IsOptional()
-  productFishes?: CreateProductFishDto[];
+  fishes?: CreateProductFishDto[];
 }

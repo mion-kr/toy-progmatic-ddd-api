@@ -18,7 +18,7 @@ export class ProductEntity extends AbstractSchema implements Product {
   private _minHeadCount: number;
   private _displayStatus: ProductDisplayStatus;
   private _partnersId: string;
-  private _productFishes: ProductFishEntity[];
+  private _fishes: ProductFishEntity[];
 
   private constructor(props: Product) {
     super(props);
@@ -140,11 +140,11 @@ export class ProductEntity extends AbstractSchema implements Product {
   }
 
   @Expose()
-  get productFishes(): ProductFishEntity[] {
-    return this._productFishes;
+  get fishes(): ProductFishEntity[] {
+    return this._fishes;
   }
 
-  set productFishes(productFishes: ProductFishEntity[]) {
-    this._productFishes = productFishes;
+  set fishes(fishes: ProductFishEntity[]) {
+    this._fishes = fishes;
   }
 }

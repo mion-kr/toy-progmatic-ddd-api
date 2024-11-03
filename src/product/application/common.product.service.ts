@@ -9,12 +9,6 @@ export class CommonProductService {
     }
   }
 
-  async validateNotFoundPartner(partnerId: string) {
-    if (!partnerId) {
-      throw new NotFoundException('파트너스를 찾을 수 없습니다.');
-    }
-  }
-
   async validateDisplayStatus(product: ProductEntity) {
     if (product.displayStatus === 'HIDE') {
       throw new NotFoundException('비공개된 상품입니다.');

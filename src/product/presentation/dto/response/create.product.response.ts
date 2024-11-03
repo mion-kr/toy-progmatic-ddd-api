@@ -17,7 +17,7 @@ export class CreateProductResponse extends PickType(CreateProductDto, [
   id: string;
 
   displayStatus: ProductDisplayStatus;
-  productFishes: CreateProductFishResponse[];
+  fishes: CreateProductFishResponse[];
 
   constructor(partial: ProductEntity) {
     super();
@@ -30,7 +30,7 @@ export class CreateProductResponse extends PickType(CreateProductDto, [
     this.minHeadCount = partial.minHeadCount;
     this.displayStatus = partial.displayStatus;
     this.partnersId = partial.partnersId;
-    this.productFishes = partial?.productFishes?.map(
+    this.fishes = partial?.fishes?.map(
       (productFish) => new CreateProductFishResponse(productFish),
     );
   }

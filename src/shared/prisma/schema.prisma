@@ -1,12 +1,13 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["multiSchema"]
+  previewFeatures = ["multiSchema", "postgresqlExtensions"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
   schemas  = ["product", "schedule", "reservation", "auth", "user", "partners", "common"]
+  extensions = [pgcrypto]
 }
 
 enum RoleType {
@@ -111,7 +112,6 @@ enum ScheduleStatus {
   OPEN            // 예약 가능
   CLOSE           // 예약 불가
   WAITING_LAUNCH  // 출조 대기
-  COMPLETED       // 완료
 
   @@map("SCHEDULE_STATUS")
   @@schema("schedule")
@@ -121,7 +121,7 @@ model Schedule {
   id              String @id @default(cuid())
   productId       String
   product         Product @relation(fields: [productId], references: [id])
-  fishingDate     DateTime @map("fishing_date")
+  fishingDate     DateTime @db.Timestamptz @map("fishing_date")
   name            String
   price           Int
   description     String?
