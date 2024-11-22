@@ -16,6 +16,7 @@ import { UpdateScheduleDto } from './dto/request/update-schedule.dto';
 import { CreateScheduleResponse } from './dto/response/create-schedule.response';
 import { DeleteScheduleResponse } from './dto/response/delete-schedule.response';
 import { FindAllScheduleResponse } from './dto/response/find-all-schedule.response';
+import { FindOneScheduleResponse } from './dto/response/find-one-schedule.response';
 import { UpdateScheduleResponse } from './dto/response/update-schedule.response';
 
 @ApiTags('스케줄')
@@ -71,7 +72,7 @@ export class ScheduleController {
   })
   async findById(@Param('id') id: string) {
     const schedule = await this.scheduleService.findById(id);
-    return new CreateScheduleResponse(schedule);
+    return new FindOneScheduleResponse(schedule);
   }
 
   /**

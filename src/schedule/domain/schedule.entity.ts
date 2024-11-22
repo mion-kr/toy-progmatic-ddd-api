@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import { Schedule, ScheduleStatus } from '@prisma/client';
+import { Schedule, ScheduleFish, ScheduleStatus } from '@prisma/client';
 import { Exclude, Expose } from 'class-transformer';
 import * as cuid from 'cuid';
 import {
@@ -23,7 +23,7 @@ export class ScheduleEntity extends AbstractSchema implements Schedule {
   private _status: ScheduleStatus;
   private _fishes: ScheduleFishEntity[];
 
-  private constructor(props: Schedule) {
+  private constructor(props: Schedule & { fishes?: ScheduleFishEntity[] }) {
     super(props);
     this._id = props.id;
     this._productId = props.productId;
@@ -36,6 +36,7 @@ export class ScheduleEntity extends AbstractSchema implements Schedule {
     this._headCount = props.headCount;
     this._minHeadCount = props.minHeadCount;
     this._status = props.status;
+    this._fishes = props.fishes;
   }
 
   static createNew(
@@ -66,8 +67,14 @@ export class ScheduleEntity extends AbstractSchema implements Schedule {
     return entity;
   }
 
-  static fromPersistence(props: Schedule): ScheduleEntity {
-    return new ScheduleEntity(props);
+  static fromPersistence(
+    props: Schedule & { fishes?: ScheduleFish[] },
+  ): ScheduleEntity {
+    const entity = new ScheduleEntity({
+      ...props,
+      fishes: props.fishes?.map(ScheduleFishEntity.fromPersistence),
+    });
+    return entity;
   }
 
   async update(props: Partial<Schedule>): Promise<void> {
@@ -151,7 +158,8 @@ export class ScheduleEntity extends AbstractSchema implements Schedule {
     return this._status;
   }
 
-  set fishes(fishes: ScheduleFishEntity[]) {
-    this._fishes = fishes;
+  @Expose()
+  get fishes(): ScheduleFishEntity[] {
+    return this._fishes;
   }
 }

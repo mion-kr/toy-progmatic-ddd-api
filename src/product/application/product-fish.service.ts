@@ -8,13 +8,6 @@ import { UpdateProductFishDto } from '../presentation/dto/request/update-product
 export class ProductFishService {
   constructor(private readonly productFishRepository: ProductFishRepository) {}
 
-  async findAllByProductId(
-    id: string,
-    tx?: Prisma.TransactionClient,
-  ): Promise<ProductFishEntity[]> {
-    return this.productFishRepository.findAllByProductId(id, tx);
-  }
-
   async updateProductFishes(
     productId: string,
     dto: UpdateProductFishDto[],

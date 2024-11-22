@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../shared/prisma/prisma.service';
 import { UserEntity } from '../domain/user.entity';
 import { UserRepository } from '../infrastructure/user.repository';
@@ -36,14 +37,16 @@ export class UserService {
   /**
    * 사용자 조회
    */
-  async findBySnsId(snsId: string) {
-    return await this.prismaService.$transaction(async (tx) => {
+  async findBySnsId(snsId: string, tx?: Prisma.TransactionClient) {
+    const fn = async (tx: Prisma.TransactionClient) => {
       const user = await this.userRepository.findBySnsId(snsId, tx);
 
       await this.commonUserService.validateNotFoundUser(user);
 
       return user;
-    });
+    };
+
+    return tx ? fn(tx) : await this.prismaService.$transaction(fn);
   }
 
   /**

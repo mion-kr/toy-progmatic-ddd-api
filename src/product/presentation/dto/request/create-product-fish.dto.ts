@@ -9,10 +9,10 @@ export class CreateProductFishDto {
   @IsString()
   fishId: string;
 
-  @ApiProperty({
-    description: '상품 ID',
-    example: 'product-1',
-  })
-  @IsString()
-  productId: string;
+  // @ApiProperty({
+  //   description: '상품 ID',
+  //   example: 'product-1',
+  // })
+  // @IsString()
+  // productId: string;
 }

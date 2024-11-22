@@ -19,7 +19,7 @@ export class ScheduleRepository implements IScheduleRepository {
       skip: (dto.page - 1) * dto.limit,
       take: dto.limit,
       include: {
-        scheduleFishes: {
+        fishes: {
           where: { deletedAt: null },
         },
       },
@@ -46,7 +46,7 @@ export class ScheduleRepository implements IScheduleRepository {
     const schedule = await prisma.schedule.findUnique({
       where: { id, deletedAt: null },
       include: {
-        scheduleFishes: {
+        fishes: {
           where: { deletedAt: null },
         },
       },
@@ -63,7 +63,9 @@ export class ScheduleRepository implements IScheduleRepository {
     const schedules = await prisma.schedule.findMany({
       where: { productId, deletedAt: null },
       include: {
-        product: true,
+        fishes: {
+          where: { deletedAt: null },
+        },
       },
     });
     return schedules.map((schedule) =>
@@ -94,6 +96,11 @@ export class ScheduleRepository implements IScheduleRepository {
         updatedBy: schedule.updatedBy,
         updatedAt: schedule.updatedAt,
       },
+      include: {
+        fishes: {
+          where: { deletedAt: null },
+        },
+      },
     });
     return ScheduleEntity.fromPersistence(createdSchedule);
   }
@@ -121,6 +128,11 @@ export class ScheduleRepository implements IScheduleRepository {
         updatedAt: schedule.updatedAt,
         deletedBy: schedule.deletedBy,
         deletedAt: schedule.deletedAt,
+      },
+      include: {
+        fishes: {
+          where: { deletedAt: null },
+        },
       },
     });
 

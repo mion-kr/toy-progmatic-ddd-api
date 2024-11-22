@@ -18,6 +18,6 @@ import { ScheduleController } from './presentation/schedule.controller';
     ScheduleFishService,
     ScheduleFishRepository,
   ],
-  exports: [ScheduleService],
+  exports: [ScheduleService, CommonScheduleService],
 })
 export class ScheduleModule {}

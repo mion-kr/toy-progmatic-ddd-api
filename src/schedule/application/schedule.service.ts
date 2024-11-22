@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { CommonProductService } from '../../product/application/common.product.service';
 import { ProductService } from '../../product/application/product.service';
 import { PrismaService } from '../../shared/prisma/prisma.service';
@@ -47,7 +48,7 @@ export class ScheduleService {
           );
         }
 
-        return createdSchedule;
+        return await this.scheduleRepository.findById(createdSchedule.id, tx);
       },
     );
 
@@ -59,20 +60,15 @@ export class ScheduleService {
     return { datas, count };
   }
 
-  async findById(id: string) {
-    const schedule = await this.prismaService.$transaction(async (tx) => {
+  async findById(id: string, tx?: Prisma.TransactionClient) {
+    const fn = async (tx: Prisma.TransactionClient) => {
       const schedule = await this.scheduleRepository.findById(id, tx);
-
       await this.commonScheduleService.validateNotFoundSchedule(schedule);
 
-      schedule.fishes = await this.scheduleFishService.findAllByScheduleId(
-        schedule.id,
-        tx,
-      );
-
       return schedule;
-    });
-    return schedule;
+    };
+
+    return tx ? await fn(tx) : await this.prismaService.$transaction(fn);
   }
 
   async update(id: string, dto: UpdateScheduleDto, updatedBy: string) {
@@ -102,7 +98,7 @@ export class ScheduleService {
       },
     );
 
-    return updatedSchedule;
+    return await this.scheduleRepository.findById(updatedSchedule.id);
   }
 
   async delete(id: string, deletedBy: string) {

@@ -19,7 +19,7 @@ export class ProductRepository implements IProductRepository {
       skip: (dto.page - 1) * dto.limit,
       take: dto.limit,
       include: {
-        productFishes: {
+        fishes: {
           where: { deletedAt: null },
         },
       },
@@ -44,7 +44,7 @@ export class ProductRepository implements IProductRepository {
     const product = await prisma.product.findUnique({
       where: { id, deletedAt: null },
       include: {
-        productFishes: {
+        fishes: {
           where: { deletedAt: null },
         },
       },

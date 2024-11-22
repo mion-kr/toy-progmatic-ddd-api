@@ -1,4 +1,4 @@
-import { Product, ProductDisplayStatus } from '@prisma/client';
+import { Product, ProductDisplayStatus, ProductFish } from '@prisma/client';
 import { Expose } from 'class-transformer';
 import * as cuid from 'cuid';
 import {
@@ -20,7 +20,7 @@ export class ProductEntity extends AbstractSchema implements Product {
   private _partnersId: string;
   private _fishes: ProductFishEntity[];
 
-  private constructor(props: Product) {
+  private constructor(props: Product & { fishes?: ProductFishEntity[] }) {
     super(props);
     this._id = props.id;
     this.setPartnersId(props.partnersId);
@@ -31,6 +31,7 @@ export class ProductEntity extends AbstractSchema implements Product {
     this.setHeadCount(props.headCount);
     this._minHeadCount = props.minHeadCount;
     this._displayStatus = props.displayStatus;
+    this._fishes = props.fishes;
   }
 
   static createNew(
@@ -60,8 +61,14 @@ export class ProductEntity extends AbstractSchema implements Product {
     return entity;
   }
 
-  static fromPersistence(props: Product): ProductEntity {
-    return new ProductEntity(props);
+  static fromPersistence(
+    props: Product & { fishes?: ProductFish[] },
+  ): ProductEntity {
+    const entity = new ProductEntity({
+      ...props,
+      fishes: props.fishes?.map(ProductFishEntity.fromPersistence),
+    });
+    return entity;
   }
 
   async update(props: Partial<Product>): Promise<void> {
@@ -142,9 +149,5 @@ export class ProductEntity extends AbstractSchema implements Product {
   @Expose()
   get fishes(): ProductFishEntity[] {
     return this._fishes;
-  }
-
-  set fishes(fishes: ProductFishEntity[]) {
-    this._fishes = fishes;
   }
 }

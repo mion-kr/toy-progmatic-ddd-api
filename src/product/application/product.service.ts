@@ -49,7 +49,7 @@ export class ProductService {
         );
       }
 
-      return createdProduct;
+      return await this.productRepository.findById(createdProduct.id, tx);
     });
 
     return createdProduct;
@@ -73,11 +73,6 @@ export class ProductService {
 
       await this.commonProductService.validateNotFoundProduct(product);
 
-      product.fishes = await this.productFishService.findAllByProductId(
-        product.id,
-        tx,
-      );
-
       return product;
     });
     return product;
@@ -88,7 +83,7 @@ export class ProductService {
    */
   async update(id: string, dto: UpdateProductDto, updatedBy: string) {
     const updatedProduct = await this.prismaService.$transaction(async (tx) => {
-      const product = await this.productRepository.findById(id);
+      const product = await this.productRepository.findById(id, tx);
 
       await this.commonProductService.validateNotFoundProduct(product);
 
@@ -105,7 +100,7 @@ export class ProductService {
         );
       }
 
-      return updatedProduct;
+      return await this.productRepository.findById(updatedProduct.id, tx);
     });
 
     return updatedProduct;
