@@ -69,7 +69,7 @@ model Product {
   name            String
   price           Int
   description     String?
-  productFishes   ProductFish[]
+  fishes         ProductFish[]
   operationTime   String @map("operation_time")
   headCount       Int @map("head_count")
   minHeadCount    Int @map("min_head_count")
@@ -132,7 +132,7 @@ model Schedule {
 
   status          ScheduleStatus @default(OPEN)
 
-  scheduleFishes  ScheduleFish[]
+  fishes          ScheduleFish[]
   reservations    Reservation[]
 
   createdAt       DateTime @default(now()) @map("created_at")
@@ -182,7 +182,7 @@ model Reservation {
   status          ReservationStatus @default(PAYMENT_WAITING)
 
   schedule        Schedule @relation(fields: [scheduleId], references: [id])
-  payments        Payment[]
+  payment         Payment?
 
   createdAt       DateTime @default(now()) @map("created_at")
   createdBy       String @map("created_by")
@@ -197,8 +197,9 @@ model Reservation {
 
 model Payment {
   id              String @id @default(cuid())
-  reservationId   String @map("reservation_id")
+  reservationId   String @unique @map("reservation_id")
   reservation     Reservation @relation(fields: [reservationId], references: [id])
+  
   price           Int @map("price")
 
   refunds         Refund[]

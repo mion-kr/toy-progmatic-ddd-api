@@ -1,6 +1,7 @@
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { SwaggerTheme, SwaggerThemeNameEnum } from 'swagger-themes';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -22,7 +23,10 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  const theme = new SwaggerTheme();
+  SwaggerModule.setup('api', app, document, {
+    customCss: theme.getBuffer(SwaggerThemeNameEnum.GRUVBOX),
+  });
 
   await app.listen(3000);
 }

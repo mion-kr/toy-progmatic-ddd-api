@@ -14,6 +14,9 @@ export class PrismaService
         { emit: 'stdout', level: 'warn' },
         { emit: 'stdout', level: 'error' },
       ],
+      transactionOptions: {
+        timeout: 30 * 1000,
+      },
     });
 
     this.$on(
