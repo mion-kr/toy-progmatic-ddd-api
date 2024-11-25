@@ -7,8 +7,13 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { RoleType } from '@prisma/client';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../auth/guards/roles-guard';
+import { Roles } from '../../shared/decorators/role.decorator';
 import { ReservationService } from '../application/reservation.service';
 import { CancelReservationDto } from './dto/request/cancel-reservation.dto';
 import { CreatePaymentDto } from './dto/request/create-payment.dto';
@@ -28,6 +33,8 @@ import { FindAllReservationResponse } from './dto/response/find-all-reservation.
   status: 500,
   description: '서버 오류',
 })
+@UseGuards(RolesGuard)
+@UseGuards(JwtAuthGuard) // 이게 먼저 실행되고 그 다음에 RolesGuard가 실행됨
 export class ReservationController {
   constructor(private readonly reservationService: ReservationService) {}
 
@@ -39,6 +46,7 @@ export class ReservationController {
     status: 201,
     description: '예약 생성 성공',
   })
+  @Roles(RoleType.USER)
   async create(@Body() dto: CreateReservationDto) {
     const reservation = await this.reservationService.create(dto, dto.userId);
     return new CreateReservationResponse(reservation);
@@ -52,6 +60,7 @@ export class ReservationController {
     status: 200,
     description: '예약 목록 조회 성공',
   })
+  @Roles(RoleType.PARTNER, RoleType.USER)
   async findAll(@Query() dto: FindAllReservationDto) {
     const { datas, count } = await this.reservationService.findAll(dto);
     return new FindAllReservationResponse(datas, count);
@@ -69,6 +78,7 @@ export class ReservationController {
     status: 404,
     description: '예약을 찾을 수 없습니다.',
   })
+  @Roles(RoleType.PARTNER, RoleType.USER)
   async findById(@Param('id') id: string) {
     const reservation = await this.reservationService.findById(id);
     return new CreateReservationResponse(reservation);
@@ -78,6 +88,7 @@ export class ReservationController {
    * 예약 결제
    */
   @Patch(':id/payment')
+  @Roles(RoleType.USER)
   async payment(@Param('id') id: string, @Body() dto: CreatePaymentDto) {
     const reservation = await this.reservationService.payment(
       id,
@@ -99,6 +110,7 @@ export class ReservationController {
     status: 404,
     description: '예약을 찾을 수 없습니다.',
   })
+  @Roles(RoleType.USER)
   async cancel(@Param('id') id: string, @Body() dto: CancelReservationDto) {
     const reservation = await this.reservationService.cancel(id, dto.userId);
     return new DeleteReservationResponse(reservation);

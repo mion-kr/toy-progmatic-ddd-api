@@ -7,8 +7,13 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { RoleType } from '@prisma/client';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../auth/guards/roles-guard';
+import { Roles } from '../../shared/decorators/role.decorator';
 import { ScheduleService } from '../application/schedule.service';
 import { CreateScheduleDto } from './dto/request/create-schedule.dto';
 import { FindAllScheduleDto } from './dto/request/find-all-schedule.dto';
@@ -29,6 +34,9 @@ import { UpdateScheduleResponse } from './dto/response/update-schedule.response'
   status: 500,
   description: '서버 오류',
 })
+@UseGuards(RolesGuard)
+@Roles(RoleType.PARTNER)
+@UseGuards(JwtAuthGuard) // 이게 먼저 실행되고 그 다음에 RolesGuard가 실행됨
 export class ScheduleController {
   constructor(private readonly scheduleService: ScheduleService) {}
 
@@ -53,6 +61,7 @@ export class ScheduleController {
     status: 200,
     description: '스케줄 목록 조회 성공',
   })
+  @Roles(RoleType.PARTNER, RoleType.USER)
   async findAll(@Query() dto: FindAllScheduleDto) {
     const { datas, count } = await this.scheduleService.findAll(dto);
     return new FindAllScheduleResponse(datas, count);
@@ -70,6 +79,7 @@ export class ScheduleController {
     status: 404,
     description: '스케줄을 찾을 수 없습니다.',
   })
+  @Roles(RoleType.PARTNER, RoleType.USER)
   async findById(@Param('id') id: string) {
     const schedule = await this.scheduleService.findById(id);
     return new FindOneScheduleResponse(schedule);
