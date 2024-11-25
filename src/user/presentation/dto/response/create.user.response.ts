@@ -1,4 +1,5 @@
-import { PickType } from '@nestjs/swagger';
+import { ApiProperty, PickType } from '@nestjs/swagger';
+import { RoleType } from '@prisma/client';
 import { UserEntity } from '../../../domain/user.entity';
 import { CreateUserDto } from '../request/create.user.dto';
 
@@ -14,5 +15,13 @@ export class CreateUserResponse extends PickType(CreateUserDto, [
     this.email = partial.email;
     this.nickName = partial.nickName;
     this.profileImage = partial.profileImage;
+    this.roles = partial.roles;
   }
+
+  @ApiProperty({
+    example: [RoleType.USER],
+    description: '유저 권한',
+    required: true,
+  })
+  roles: RoleType[];
 }

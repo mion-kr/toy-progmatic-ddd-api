@@ -7,8 +7,13 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { RoleType } from '@prisma/client';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../auth/guards/roles-guard';
+import { Roles } from '../../shared/decorators/role.decorator';
 import { ProductService } from '../application/product.service';
 import { CreateProductDto } from './dto/request/create.product.dto';
 import { FindAllProductDto } from './dto/request/find-all.product.dto';
@@ -28,6 +33,9 @@ import { UpdateProductResponse } from './dto/response/update.product.response';
   status: 500,
   description: '서버 오류',
 })
+@UseGuards(RolesGuard)
+@Roles(RoleType.PARTNER)
+@UseGuards(JwtAuthGuard) // 이게 먼저 실행되고 그 다음에 RolesGuard가 실행됨
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 

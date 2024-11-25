@@ -40,7 +40,7 @@ export class ProductFishService {
     tx?: Prisma.TransactionClient,
   ) {
     const productFishesToCreate = dto
-      .filter((dto) => !dto.id)
+      .filter((dto) => !dto.id && dto.isDeleted !== true)
       .map((dto) =>
         ProductFishEntity.createNew({
           productId: productId,

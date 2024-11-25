@@ -91,7 +91,7 @@ export class ProductService {
 
       const updatedProduct = await this.productRepository.update(product, tx);
 
-      if (dto.fishes.length > 0) {
+      if (dto.fishes?.length > 0) {
         await this.productFishService.updateProductFishes(
           updatedProduct.id,
           dto.fishes,

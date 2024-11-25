@@ -8,7 +8,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiExtraModels, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RoleType } from '@prisma/client';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/roles-guard';
@@ -36,6 +36,7 @@ import { UpdateUserResponse } from './dto/response/update.user.response';
 @UseGuards(RolesGuard)
 @Roles(RoleType.USER)
 @UseGuards(JwtAuthGuard) // 이게 먼저 실행되고 그 다음에 RolesGuard가 실행됨
+@ApiExtraModels(CreateUserResponse)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -47,6 +48,7 @@ export class UserController {
   @ApiResponse({
     status: 201,
     description: '사용자 생성 성공',
+    type: CreateUserResponse,
   })
   @ApiResponse({
     status: 409,

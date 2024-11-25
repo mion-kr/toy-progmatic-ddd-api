@@ -6,12 +6,15 @@ import { UserRepository } from '../infrastructure/user.repository';
 import { CreateUserDto } from '../presentation/dto/request/create.user.dto';
 import { UpdateUserDto } from '../presentation/dto/request/update.user.dto';
 import { CommonUserService } from './common.user.service';
+import { UserRoleService } from './user-role.service';
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly commonUserService: CommonUserService,
+
+    private readonly userRoleService: UserRoleService,
 
     private readonly prismaService: PrismaService,
   ) {}
@@ -72,6 +75,10 @@ export class UserService {
       await user.update({ ...dto, updatedBy: snsId });
 
       await this.userRepository.update(user, tx);
+
+      if (dto.roles?.length > 0) {
+        await this.userRoleService.updateUserRoles(snsId, dto.roles, tx);
+      }
 
       return await this.userRepository.findOneBySnsId(snsId, tx);
     });
