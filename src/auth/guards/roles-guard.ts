@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Observable } from 'rxjs';
+import { publicKey } from '../../shared/decorators/jwt-public.decorator';
 import { UserEntity } from '../../user/domain/user.entity';
 
 @Injectable()
@@ -15,6 +16,13 @@ export class RolesGuard implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
+    const isPublic = this.reflector.get<boolean>(
+      publicKey,
+      context.getHandler(),
+    );
+
+    if (isPublic) return true;
+
     // ROLES 데코레이터(메타)를 통하여 전달된 접근 권한 리스트
     const roles =
       this.reflector.get<string[]>('roles', context.getHandler()) ??
