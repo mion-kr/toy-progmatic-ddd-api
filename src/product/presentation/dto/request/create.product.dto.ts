@@ -59,12 +59,12 @@ export class CreateProductDto {
   minHeadCount: number;
 
   /**
-   * 파트너스 ID
-   * @example "partners-id"
+   * 유저 ID(파트너스 권한이 있는 유저)
+   * @example "user-id"
    */
   @IsString()
   @IsNotEmpty()
-  partnersId: string;
+  userId: string;
 
   /**
    * 상품 어종

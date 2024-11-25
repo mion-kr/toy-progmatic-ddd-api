@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, RoleType } from '@prisma/client';
 import { PrismaService } from '../../shared/prisma/prisma.service';
 import { UserEntity } from '../domain/user.entity';
 import { IUserRepository } from '../domain/user.repository.interface';
@@ -8,7 +8,7 @@ import { IUserRepository } from '../domain/user.repository.interface';
 export class UserRepository implements IUserRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async findBySnsId(
+  async findOneBySnsId(
     snsId: string,
     tx?: Prisma.TransactionClient,
   ): Promise<UserEntity | null> {
@@ -16,6 +16,9 @@ export class UserRepository implements IUserRepository {
 
     const user = await prisma.user.findUnique({
       where: { snsId, deletedAt: null },
+      include: {
+        roles: true,
+      },
     });
     return user ? UserEntity.fromPersistence(user) : null;
   }
@@ -32,13 +35,10 @@ export class UserRepository implements IUserRepository {
     return user ? UserEntity.fromPersistence(user) : null;
   }
 
-  async create(
-    user: UserEntity,
-    tx?: Prisma.TransactionClient,
-  ): Promise<UserEntity> {
+  async create(user: UserEntity, tx?: Prisma.TransactionClient): Promise<void> {
     const prisma = tx ?? this.prismaService;
 
-    const createdUser = await prisma.user.create({
+    await prisma.user.create({
       data: {
         snsId: user.snsId,
         password: user.password,
@@ -49,18 +49,19 @@ export class UserRepository implements IUserRepository {
         createdAt: user.createdAt,
         updatedBy: user.updatedBy,
         updatedAt: user.updatedAt,
+        roles: {
+          create: {
+            roleId: RoleType.USER,
+          },
+        },
       },
     });
-    return UserEntity.fromPersistence(createdUser);
   }
 
-  async update(
-    user: UserEntity,
-    tx?: Prisma.TransactionClient,
-  ): Promise<UserEntity> {
+  async update(user: UserEntity, tx?: Prisma.TransactionClient): Promise<void> {
     const prisma = tx ?? this.prismaService;
 
-    const updatedUser = await prisma.user.update({
+    await prisma.user.update({
       where: { snsId: user.snsId },
       data: {
         email: user?.email,
@@ -72,6 +73,5 @@ export class UserRepository implements IUserRepository {
         deletedAt: user?.deletedAt,
       },
     });
-    return UserEntity.fromPersistence(updatedUser);
   }
 }

@@ -6,7 +6,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  schemas  = ["product", "schedule", "reservation", "auth", "user", "partners", "common"]
+  schemas  = ["product", "schedule", "reservation", "auth", "user", "common"]
   extensions = [pgcrypto]
 }
 
@@ -19,15 +19,38 @@ enum RoleType {
   @@schema("auth")
 }
 
+model Role {
+  id            RoleType @id
+  name            String
+  users           UserRole[]
+
+  @@map("ROLE")
+  @@schema("auth")
+}
+
+model UserRole {
+  userId          String
+  roleId          RoleType
+  user            User @relation(fields: [userId], references: [snsId])
+  role            Role @relation(fields: [roleId], references: [id])
+
+  @@id([userId, roleId])
+  @@map("USER_ROLE")
+  @@schema("user")
+}
+
 
 model User {
-  snsId           String @id
+  snsId           String @id @map("sns_id")
   password        String
   email           String @unique
   nickName        String? @map("nick_name")
   profileImage    String? @map("profile_image")
 
   reservations     Reservation[]
+  products         Product[]
+  roles            UserRole[]
+
 
   createdAt       DateTime @default(now()) @map("created_at")
   createdBy       String @map("created_by")
@@ -38,22 +61,6 @@ model User {
 
   @@map("USER") // 실제 테이블 이름
   @@schema("user")
-}
-
-model Partners {
-  id              String @id @default(cuid())
-  name            String
-  businessNumber  String @unique @map("business_number")
-  products        Product[]
-  createdAt       DateTime @default(now()) @map("created_at")
-  createdBy       String @map("created_by")
-  updatedAt       DateTime @updatedAt @map("updated_at")
-  updatedBy       String @map("updated_by")
-  deletedAt       DateTime? @map("deleted_at")
-  deletedBy       String? @map("deleted_by")
-
-  @@map("PARTNERS")
-  @@schema("partners")
 }
 
 enum ProductDisplayStatus {
@@ -76,8 +83,8 @@ model Product {
 
   displayStatus   ProductDisplayStatus @default(DISPLAY) @map("display_status")
 
-  partnersId      String
-  partners        Partners @relation(fields: [partnersId], references: [id])
+  userId          String @map("user_id")
+  user            User @relation(fields: [userId], references: [snsId])
   schedules       Schedule[]
 
   createdAt       DateTime @default(now()) @map("created_at")

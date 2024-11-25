@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { PartnersModule } from './partners/partners.module';
+import { AuthModule } from './auth/auth.module';
 import { ProductModule } from './product/product.module';
 import { ReservationModule } from './reservation/reservation.module';
 import { ScheduleModule } from './schedule/schedule.module';
@@ -20,10 +20,10 @@ console.log(process.env.NODE_ENV);
 
     UserModule,
 
-    PartnersModule,
     ProductModule,
     ScheduleModule,
     ReservationModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

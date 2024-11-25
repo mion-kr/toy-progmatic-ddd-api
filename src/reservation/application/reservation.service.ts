@@ -39,7 +39,7 @@ export class ReservationService {
       await this.commonScheduleService.validateNotFoundSchedule(schedule);
       await this.commonScheduleService.validateScheduleStatus(schedule);
 
-      const user = await this.userService.findBySnsId(userId, tx);
+      const user = await this.userService.findOneBySnsId(userId, tx);
       await this.commonUserService.validateNotFoundUser(user);
 
       const reservation = ReservationEntity.createNew({

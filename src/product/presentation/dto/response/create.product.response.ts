@@ -12,7 +12,7 @@ export class CreateProductResponse extends PickType(CreateProductDto, [
   'operationTime',
   'headCount',
   'minHeadCount',
-  'partnersId',
+  'userId',
 ] as const) {
   id: string;
 
@@ -29,7 +29,7 @@ export class CreateProductResponse extends PickType(CreateProductDto, [
     this.headCount = partial.headCount;
     this.minHeadCount = partial.minHeadCount;
     this.displayStatus = partial.displayStatus;
-    this.partnersId = partial.partnersId;
+    this.userId = partial.userId;
     this.fishes = partial?.fishes?.map(
       (productFish) => new CreateProductFishResponse(productFish),
     );

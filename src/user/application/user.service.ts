@@ -21,25 +21,33 @@ export class UserService {
    */
   async create(dto: CreateUserDto) {
     return await this.prismaService.$transaction(async (tx) => {
-      const saved_user = await this.userRepository.findBySnsId(dto.snsId, tx);
+      const savedUserBySnsId = await this.userRepository.findOneBySnsId(
+        dto.snsId,
+        tx,
+      );
 
-      await this.commonUserService.validateConflictSnsId(saved_user);
-      await this.commonUserService.validateConflictEmail(saved_user);
+      await this.commonUserService.validateConflictSnsId(savedUserBySnsId);
 
-      const user = UserEntity.createNew({ ...dto, createdBy: dto.snsId });
+      const savedUserByEmail = await this.userRepository.findByEmail(
+        dto.email,
+        tx,
+      );
+      await this.commonUserService.validateConflictEmail(savedUserByEmail);
 
-      const createdUser = await this.userRepository.create(user, tx);
+      const user = await UserEntity.createNew({ ...dto, createdBy: dto.snsId });
 
-      return createdUser;
+      await this.userRepository.create(user, tx);
+
+      return await this.userRepository.findOneBySnsId(dto.snsId, tx);
     });
   }
 
   /**
    * 사용자 조회
    */
-  async findBySnsId(snsId: string, tx?: Prisma.TransactionClient) {
+  async findOneBySnsId(snsId: string, tx?: Prisma.TransactionClient) {
     const fn = async (tx: Prisma.TransactionClient) => {
-      const user = await this.userRepository.findBySnsId(snsId, tx);
+      const user = await this.userRepository.findOneBySnsId(snsId, tx);
 
       await this.commonUserService.validateNotFoundUser(user);
 
@@ -54,7 +62,7 @@ export class UserService {
    */
   async update(snsId: string, dto: UpdateUserDto) {
     return await this.prismaService.$transaction(async (tx) => {
-      const user = await this.userRepository.findBySnsId(snsId);
+      const user = await this.userRepository.findOneBySnsId(snsId);
 
       await this.commonUserService.validateNotFoundUser(user);
       if (dto.email) {
@@ -63,9 +71,9 @@ export class UserService {
 
       await user.update({ ...dto, updatedBy: snsId });
 
-      const updatedUser = await this.userRepository.update(user, tx);
+      await this.userRepository.update(user, tx);
 
-      return updatedUser;
+      return await this.userRepository.findOneBySnsId(snsId, tx);
     });
   }
 
@@ -74,13 +82,13 @@ export class UserService {
    */
   async delete(snsId: string) {
     return await this.prismaService.$transaction(async (tx) => {
-      const user = await this.userRepository.findBySnsId(snsId, tx);
+      const user = await this.userRepository.findOneBySnsId(snsId, tx);
 
       await this.commonUserService.validateNotFoundUser(user);
 
       await user.delete(snsId);
 
-      return await this.userRepository.update(user, tx);
+      return;
     });
   }
 }

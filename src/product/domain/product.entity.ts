@@ -17,13 +17,13 @@ export class ProductEntity extends AbstractSchema implements Product {
   private _headCount: number;
   private _minHeadCount: number;
   private _displayStatus: ProductDisplayStatus;
-  private _partnersId: string;
+  private _userId: string;
   private _fishes: ProductFishEntity[];
 
   private constructor(props: Product & { fishes?: ProductFishEntity[] }) {
     super(props);
     this._id = props.id;
-    this.setPartnersId(props.partnersId);
+    this.setUserId(props.userId);
     this._name = props.name;
     this._price = props.price;
     this._description = props.description;
@@ -87,11 +87,11 @@ export class ProductEntity extends AbstractSchema implements Product {
     this.setDeletedInfo(deletedBy);
   }
 
-  private setPartnersId(partnersId: string) {
-    if (!partnersId) {
-      throw new Error('partnersId is required');
+  private setUserId(userId: string) {
+    if (!userId) {
+      throw new Error('userId is required');
     }
-    this._partnersId = partnersId;
+    this._userId = userId;
   }
 
   private setHeadCount(headCount: number) {
@@ -142,8 +142,8 @@ export class ProductEntity extends AbstractSchema implements Product {
   }
 
   @Expose()
-  get partnersId(): string {
-    return this._partnersId;
+  get userId(): string {
+    return this._userId;
   }
 
   @Expose()

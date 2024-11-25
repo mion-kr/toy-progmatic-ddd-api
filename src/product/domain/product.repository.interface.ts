@@ -6,7 +6,6 @@ export interface IProductRepository {
     limit: number;
   }): Promise<{ datas: ProductEntity[]; count: number }>;
   findById(id: string): Promise<ProductEntity | null>;
-  findByPartnersId(partnersId: string): Promise<ProductEntity[]>;
   create(product: ProductEntity): Promise<ProductEntity>;
   update(product: ProductEntity): Promise<ProductEntity>;
 }

@@ -52,21 +52,6 @@ export class ProductRepository implements IProductRepository {
     return product ? ProductEntity.fromPersistence(product) : null;
   }
 
-  async findByPartnersId(
-    partnersId: string,
-    tx?: Prisma.TransactionClient,
-  ): Promise<ProductEntity[]> {
-    const prisma = tx ?? this.prismaService;
-
-    const products = await prisma.product.findMany({
-      where: { partnersId, deletedAt: null },
-      include: {
-        partners: true,
-      },
-    });
-    return products.map((product) => ProductEntity.fromPersistence(product));
-  }
-
   async create(
     product: ProductEntity,
     tx?: Prisma.TransactionClient,
@@ -82,7 +67,7 @@ export class ProductRepository implements IProductRepository {
         headCount: product.headCount,
         minHeadCount: product.minHeadCount,
         displayStatus: product.displayStatus,
-        partnersId: product.partnersId,
+        userId: product.userId,
         createdBy: product.createdBy,
         createdAt: product.createdAt,
         updatedBy: product.updatedBy,

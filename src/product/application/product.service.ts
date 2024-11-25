@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { CommonPartnersService } from '../../partners/application/common.partners.service';
-import { PartnersService } from '../../partners/application/partners.service';
 import { PrismaService } from '../../shared/prisma/prisma.service';
+import { CommonUserService } from '../../user/application/common.user.service';
+import { UserService } from '../../user/application/user.service';
 import { ProductEntity } from '../domain/product.entity';
 import { ProductRepository } from '../infrastructure/product.repository';
 import { CreateProductDto } from '../presentation/dto/request/create.product.dto';
@@ -17,9 +17,9 @@ export class ProductService {
     private readonly commonProductService: CommonProductService,
 
     private readonly productFishService: ProductFishService,
-    private readonly partnersService: PartnersService,
 
-    private readonly commonPartnersService: CommonPartnersService,
+    private readonly userService: UserService,
+    private readonly commonUserService: CommonUserService,
 
     private readonly prismaService: PrismaService,
   ) {}
@@ -29,9 +29,9 @@ export class ProductService {
    */
   async create(dto: CreateProductDto, createdBy: string) {
     const createdProduct = await this.prismaService.$transaction(async (tx) => {
-      const partner = await this.partnersService.findById(dto.partnersId, tx);
+      const user = await this.userService.findOneBySnsId(dto.userId, tx);
 
-      await this.commonPartnersService.validateNotFoundPartners(partner);
+      await this.commonUserService.validateNotFoundUser(user);
 
       const product = ProductEntity.createNew({
         ...dto,

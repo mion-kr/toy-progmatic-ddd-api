@@ -6,9 +6,17 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { RoleType } from '@prisma/client';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../auth/guards/roles-guard';
+import { Public } from '../../shared/decorators/jwt-public.decorator';
+import { Roles } from '../../shared/decorators/role.decorator';
+import { User } from '../../shared/decorators/user.decorator';
 import { UserService } from '../application/user.service';
+import { UserEntity } from '../domain/user.entity';
 import { CreateUserDto } from './dto/request/create.user.dto';
 import { UpdateUserDto } from './dto/request/update.user.dto';
 import { CreateUserResponse } from './dto/response/create.user.response';
@@ -25,12 +33,16 @@ import { UpdateUserResponse } from './dto/response/update.user.response';
   status: 500,
   description: '서버 오류',
 })
+@UseGuards(RolesGuard)
+@Roles(RoleType.USER)
+@UseGuards(JwtAuthGuard) // 이게 먼저 실행되고 그 다음에 RolesGuard가 실행됨
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   /**
    * 사용자 생성
    */
+  @Public()
   @Post()
   @ApiResponse({
     status: 201,
@@ -42,6 +54,23 @@ export class UserController {
   })
   async create(@Body() dto: CreateUserDto) {
     const user = await this.userService.create(dto);
+    return new CreateUserResponse(user);
+  }
+
+  /**
+   * 로그인 사용자 조회
+   */
+  @Get('me')
+  @ApiResponse({
+    status: 200,
+    description: '사용자 조회 성공',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '사용자를 찾을 수 없습니다.',
+  })
+  async findMe(@User() loginUser: UserEntity) {
+    const user = await this.userService.findOneBySnsId(loginUser.snsId);
     return new CreateUserResponse(user);
   }
 
@@ -58,7 +87,7 @@ export class UserController {
     description: '사용자를 찾을 수 없습니다.',
   })
   async findBySnsId(@Param('snsId') snsId: string) {
-    const user = await this.userService.findBySnsId(snsId);
+    const user = await this.userService.findOneBySnsId(snsId);
     return new CreateUserResponse(user);
   }
 
@@ -92,7 +121,7 @@ export class UserController {
     description: '사용자를 찾을 수 없습니다.',
   })
   async delete(@Param('snsId') snsId: string) {
-    const user = await this.userService.delete(snsId);
-    return new DeleteUserResponse(user);
+    await this.userService.delete(snsId);
+    return new DeleteUserResponse({ snsId });
   }
 }

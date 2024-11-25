@@ -1,6 +1,7 @@
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as cookieParser from 'cookie-parser';
 import { SwaggerTheme, SwaggerThemeNameEnum } from 'swagger-themes';
 import { AppModule } from './app.module';
 
@@ -15,10 +16,19 @@ async function bootstrap() {
     }),
   );
 
+  app.use(cookieParser());
+
   const config = new DocumentBuilder()
     .setTitle('Toy-Pragmatic-DDD API')
     .setDescription('The Toy-Project API description')
     .setVersion('1.0')
+    .addCookieAuth('Authentication')
+    // .addCookieAuth('Authentication', {
+    //   type: 'apiKey',
+    //   in: 'cookie',
+    //   name: 'Authentication',
+    // })
+
     // .addTag('users')
     .build();
 

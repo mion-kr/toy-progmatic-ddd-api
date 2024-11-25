@@ -40,7 +40,7 @@ export class ProductController {
     description: '상품 생성 성공',
   })
   async create(@Body() dto: CreateProductDto) {
-    const product = await this.productService.create(dto, dto.partnersId);
+    const product = await this.productService.create(dto, dto.userId);
     return new CreateProductResponse(product);
   }
 
