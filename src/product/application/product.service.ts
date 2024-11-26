@@ -29,12 +29,9 @@ export class ProductService {
    */
   async create(dto: CreateProductDto, createdBy: string) {
     const createdProduct = await this.prismaService.$transaction(async (tx) => {
-      const user = await this.userService.findOneBySnsId(dto.userId, tx);
-
-      await this.commonUserService.validateNotFoundUser(user);
-
       const product = ProductEntity.createNew({
         ...dto,
+        userId: createdBy,
         createdBy,
       });
 

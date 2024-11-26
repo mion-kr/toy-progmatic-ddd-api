@@ -14,6 +14,8 @@ import { RoleType } from '@prisma/client';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/roles-guard';
 import { Roles } from '../../shared/decorators/role.decorator';
+import { User } from '../../shared/decorators/user.decorator';
+import { UserEntity } from '../../user/domain/user.entity';
 import { ScheduleService } from '../application/schedule.service';
 import { CreateScheduleDto } from './dto/request/create-schedule.dto';
 import { FindAllScheduleDto } from './dto/request/find-all-schedule.dto';
@@ -48,8 +50,9 @@ export class ScheduleController {
     status: 201,
     description: '스케줄 생성 성공',
   })
-  async create(@Body() dto: CreateScheduleDto) {
-    const schedule = await this.scheduleService.create(dto, dto.productId);
+  @Roles(RoleType.PARTNER)
+  async create(@Body() dto: CreateScheduleDto, @User() user: UserEntity) {
+    const schedule = await this.scheduleService.create(dto, user.snsId);
     return new CreateScheduleResponse(schedule);
   }
 
@@ -97,8 +100,13 @@ export class ScheduleController {
     status: 404,
     description: '스케줄을 찾을 수 없습니다.',
   })
-  async update(@Param('id') id: string, @Body() dto: UpdateScheduleDto) {
-    const schedule = await this.scheduleService.update(id, dto, id);
+  @Roles(RoleType.PARTNER)
+  async update(
+    @Param('id') id: string,
+    @Body() dto: UpdateScheduleDto,
+    @User() user: UserEntity,
+  ) {
+    const schedule = await this.scheduleService.update(id, dto, user.snsId);
     return new UpdateScheduleResponse(schedule);
   }
 
@@ -114,8 +122,9 @@ export class ScheduleController {
     status: 404,
     description: '스케줄을 찾을 수 없습니다.',
   })
-  async delete(@Param('id') id: string) {
-    const schedule = await this.scheduleService.delete(id, id);
+  @Roles(RoleType.PARTNER)
+  async delete(@Param('id') id: string, @User() user: UserEntity) {
+    const schedule = await this.scheduleService.delete(id, user.snsId);
     return new DeleteScheduleResponse(schedule);
   }
 }

@@ -14,6 +14,8 @@ import { RoleType } from '@prisma/client';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/roles-guard';
 import { Roles } from '../../shared/decorators/role.decorator';
+import { User } from '../../shared/decorators/user.decorator';
+import { UserEntity } from '../../user/domain/user.entity';
 import { ProductService } from '../application/product.service';
 import { CreateProductDto } from './dto/request/create.product.dto';
 import { FindAllProductDto } from './dto/request/find-all.product.dto';
@@ -47,8 +49,8 @@ export class ProductController {
     status: 201,
     description: '상품 생성 성공',
   })
-  async create(@Body() dto: CreateProductDto) {
-    const product = await this.productService.create(dto, dto.userId);
+  async create(@Body() dto: CreateProductDto, @User() user: UserEntity) {
+    const product = await this.productService.create(dto, user.snsId);
     return new CreateProductResponse(product);
   }
 
@@ -60,6 +62,7 @@ export class ProductController {
     status: 200,
     description: '상품 목록 조회 성공',
   })
+  @Roles(RoleType.PARTNER, RoleType.USER)
   async findAll(@Query() dto: FindAllProductDto) {
     const { datas, count } = await this.productService.findAll(dto);
     return new FindAllProductResponse(datas, count);
@@ -77,6 +80,7 @@ export class ProductController {
     status: 404,
     description: '상품을 찾을 수 없습니다.',
   })
+  @Roles(RoleType.PARTNER, RoleType.USER)
   async findById(@Param('id') id: string) {
     const product = await this.productService.findById(id);
     return new CreateProductResponse(product);
@@ -94,8 +98,13 @@ export class ProductController {
     status: 404,
     description: '상품을 찾을 수 없습니다.',
   })
-  async update(@Param('id') id: string, @Body() dto: UpdateProductDto) {
-    const product = await this.productService.update(id, dto, id);
+  @Roles(RoleType.PARTNER)
+  async update(
+    @Param('id') id: string,
+    @Body() dto: UpdateProductDto,
+    @User() user: UserEntity,
+  ) {
+    const product = await this.productService.update(id, dto, user.snsId);
     return new UpdateProductResponse(product);
   }
 
@@ -111,8 +120,9 @@ export class ProductController {
     status: 404,
     description: '상품을 찾을 수 없습니다.',
   })
-  async delete(@Param('id') id: string) {
-    const product = await this.productService.delete(id, id);
+  @Roles(RoleType.PARTNER)
+  async delete(@Param('id') id: string, @User() user: UserEntity) {
+    const product = await this.productService.delete(id, user.snsId);
     return new DeleteProductResponse(product);
   }
 }

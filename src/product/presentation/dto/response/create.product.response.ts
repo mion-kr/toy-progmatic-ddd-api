@@ -12,12 +12,12 @@ export class CreateProductResponse extends PickType(CreateProductDto, [
   'operationTime',
   'headCount',
   'minHeadCount',
-  'userId',
 ] as const) {
   id: string;
 
   displayStatus: ProductDisplayStatus;
   fishes: CreateProductFishResponse[];
+  userId: string;
 
   constructor(partial: ProductEntity) {
     super();

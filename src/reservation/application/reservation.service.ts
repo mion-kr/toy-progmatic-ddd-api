@@ -88,7 +88,7 @@ export class ReservationService {
       const result = await this.reservationRepository.update(reservation, tx);
 
       // 결제 생성
-      await this.paymentService.create(result.id, dto, tx);
+      await this.paymentService.create(result.id, dto, userId, tx);
 
       return await this.reservationRepository.findById(id, tx);
     });

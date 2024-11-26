@@ -14,8 +14,9 @@ import { RoleType } from '@prisma/client';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/roles-guard';
 import { Roles } from '../../shared/decorators/role.decorator';
+import { User } from '../../shared/decorators/user.decorator';
+import { UserEntity } from '../../user/domain/user.entity';
 import { ReservationService } from '../application/reservation.service';
-import { CancelReservationDto } from './dto/request/cancel-reservation.dto';
 import { CreatePaymentDto } from './dto/request/create-payment.dto';
 import { CreateReservationDto } from './dto/request/create-reservation.dto';
 import { FindAllReservationDto } from './dto/request/find-all-reservation.dto';
@@ -47,8 +48,8 @@ export class ReservationController {
     description: '예약 생성 성공',
   })
   @Roles(RoleType.USER)
-  async create(@Body() dto: CreateReservationDto) {
-    const reservation = await this.reservationService.create(dto, dto.userId);
+  async create(@Body() dto: CreateReservationDto, @User() user: UserEntity) {
+    const reservation = await this.reservationService.create(dto, user.snsId);
     return new CreateReservationResponse(reservation);
   }
 
@@ -89,11 +90,15 @@ export class ReservationController {
    */
   @Patch(':id/payment')
   @Roles(RoleType.USER)
-  async payment(@Param('id') id: string, @Body() dto: CreatePaymentDto) {
+  async payment(
+    @Param('id') id: string,
+    @Body() dto: CreatePaymentDto,
+    @User() user: UserEntity,
+  ) {
     const reservation = await this.reservationService.payment(
       id,
       dto,
-      dto.userId,
+      user.snsId,
     );
     return new CreateReservationResponse(reservation);
   }
@@ -111,8 +116,8 @@ export class ReservationController {
     description: '예약을 찾을 수 없습니다.',
   })
   @Roles(RoleType.USER)
-  async cancel(@Param('id') id: string, @Body() dto: CancelReservationDto) {
-    const reservation = await this.reservationService.cancel(id, dto.userId);
+  async cancel(@Param('id') id: string, @User() user: UserEntity) {
+    const reservation = await this.reservationService.cancel(id, user.snsId);
     return new DeleteReservationResponse(reservation);
   }
 }

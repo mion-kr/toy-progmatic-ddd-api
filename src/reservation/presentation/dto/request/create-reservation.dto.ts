@@ -16,12 +16,4 @@ export class CreateReservationDto {
   @IsNumber()
   @Min(1)
   headCount: number;
-
-  // TODO 사용자 정보를 데코레이터로 갖고 올 수 있도록 합니다.
-  /**
-   * 사용자 ID
-   * @example "user-1"
-   */
-  @IsString()
-  userId: string;
 }

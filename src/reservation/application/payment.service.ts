@@ -15,6 +15,7 @@ export class PaymentService {
   async create(
     reservationId: string,
     dto: CreatePaymentDto,
+    userId: string,
     tx?: Prisma.TransactionClient,
   ) {
     const fn = async (tx?: Prisma.TransactionClient) => {
@@ -22,7 +23,7 @@ export class PaymentService {
       const payment = PaymentEntity.createNew({
         reservationId: reservationId,
         price: dto.price,
-        createdBy: dto.userId,
+        createdBy: userId,
       });
 
       // 2. 결제 정보 저장

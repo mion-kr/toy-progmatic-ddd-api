@@ -59,14 +59,6 @@ export class CreateProductDto {
   minHeadCount: number;
 
   /**
-   * 유저 ID(파트너스 권한이 있는 유저)
-   * @example "user-id"
-   */
-  @IsString()
-  @IsNotEmpty()
-  userId: string;
-
-  /**
    * 상품 어종
    */
   @IsArray()
