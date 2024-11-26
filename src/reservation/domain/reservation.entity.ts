@@ -1,4 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
+import { createId } from '@paralleldrive/cuid2';
 import {
   Payment,
   Reservation,
@@ -6,12 +7,12 @@ import {
   Schedule,
 } from '@prisma/client';
 import { Exclude, Expose } from 'class-transformer';
-import * as cuid from 'cuid';
 import { ScheduleEntity } from '../../schedule/domain/schedule.entity';
 import {
   AbstractOptionalProps,
   AbstractSchema,
 } from '../../shared/schema/abstract.schema';
+import { PaymentCompletedEvent } from '../application/events/payment-completed.event-handler';
 import { PaymentEntity } from './payment.entity';
 
 @Exclude()
@@ -21,8 +22,8 @@ export class ReservationEntity extends AbstractSchema implements Reservation {
   private _headCount: number;
   private _userId: string;
   private _status: ReservationStatus;
-  private _payment: PaymentEntity;
   private _schedule: ScheduleEntity;
+  private _payment: PaymentEntity;
 
   private constructor(
     props: Reservation & {
@@ -54,7 +55,7 @@ export class ReservationEntity extends AbstractSchema implements Reservation {
       AbstractOptionalProps,
   ): ReservationEntity {
     const entity = new ReservationEntity({
-      id: cuid(),
+      id: createId(),
       ...props,
       status: ReservationStatus.PAYMENT_WAITING,
       createdAt: new Date(),
@@ -89,10 +90,12 @@ export class ReservationEntity extends AbstractSchema implements Reservation {
 
   async completePayment(userId: string) {
     this.validateOwner(userId);
-    this.validateIsCanceled();
+    this.validateIsPaymentWaiting();
 
     this._status = ReservationStatus.COMPLETED;
     this.setUpdatedInfo(userId);
+
+    this.apply(new PaymentCompletedEvent(this));
   }
 
   async cancel(userId: string) {
@@ -121,6 +124,12 @@ export class ReservationEntity extends AbstractSchema implements Reservation {
   private validateOwner(userId: string): void {
     if (this._userId !== userId) {
       throw new BadRequestException('예약자만 수정할 수 있습니다.');
+    }
+  }
+
+  private validateIsPaymentWaiting(): void {
+    if (this._status !== ReservationStatus.PAYMENT_WAITING) {
+      throw new BadRequestException('결제 전 예약만 가능합니다.');
     }
   }
 
@@ -158,5 +167,10 @@ export class ReservationEntity extends AbstractSchema implements Reservation {
   @Expose()
   get payment(): PaymentEntity {
     return this._payment;
+  }
+
+  @Expose()
+  get schedule(): ScheduleEntity {
+    return this._schedule;
   }
 }

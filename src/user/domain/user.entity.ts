@@ -1,7 +1,7 @@
+import { createId } from '@paralleldrive/cuid2';
 import { RoleType, User, UserRole } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 import { Exclude, Expose } from 'class-transformer';
-import * as cuid from 'cuid';
 import {
   AbstractOptionalProps,
   AbstractSchema,
@@ -34,7 +34,7 @@ export class UserEntity extends AbstractSchema implements User {
       AbstractOptionalProps,
   ): Promise<UserEntity> {
     const entity = new UserEntity({
-      snsId: cuid(),
+      snsId: createId(),
       ...props,
       password: await bcrypt.hash(props.password, 10),
       createdAt: new Date(),

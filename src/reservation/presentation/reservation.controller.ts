@@ -9,6 +9,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { CommandBus } from '@nestjs/cqrs';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RoleType } from '@prisma/client';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
@@ -16,6 +17,7 @@ import { RolesGuard } from '../../auth/guards/roles-guard';
 import { Roles } from '../../shared/decorators/role.decorator';
 import { User } from '../../shared/decorators/user.decorator';
 import { UserEntity } from '../../user/domain/user.entity';
+import { PaymentReservationCommand } from '../application/commands/payment-reservation.command-handler';
 import { ReservationService } from '../application/reservation.service';
 import { CreatePaymentDto } from './dto/request/create-payment.dto';
 import { CreateReservationDto } from './dto/request/create-reservation.dto';
@@ -37,7 +39,10 @@ import { FindAllReservationResponse } from './dto/response/find-all-reservation.
 @UseGuards(RolesGuard)
 @UseGuards(JwtAuthGuard) // 이게 먼저 실행되고 그 다음에 RolesGuard가 실행됨
 export class ReservationController {
-  constructor(private readonly reservationService: ReservationService) {}
+  constructor(
+    private readonly reservationService: ReservationService,
+    private readonly commandBus: CommandBus,
+  ) {}
 
   /**
    * 예약 생성
@@ -95,10 +100,8 @@ export class ReservationController {
     @Body() dto: CreatePaymentDto,
     @User() user: UserEntity,
   ) {
-    const reservation = await this.reservationService.payment(
-      id,
-      dto,
-      user.snsId,
+    const reservation = await this.commandBus.execute(
+      new PaymentReservationCommand({ id, dto, userId: user.snsId }),
     );
     return new CreateReservationResponse(reservation);
   }

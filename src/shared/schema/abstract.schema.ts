@@ -1,3 +1,5 @@
+import { AggregateRoot } from '@nestjs/cqrs';
+
 export type AbstractOptionalProps = {
   createdAt?: Date;
   createdBy?: string;
@@ -7,7 +9,7 @@ export type AbstractOptionalProps = {
   deletedBy?: string;
 };
 
-export abstract class AbstractSchema {
+export abstract class AbstractSchema extends AggregateRoot {
   createdAt: Date;
   createdBy: string;
   updatedAt: Date;
@@ -16,6 +18,7 @@ export abstract class AbstractSchema {
   deletedBy: string;
 
   constructor(props: Partial<AbstractSchema>) {
+    super();
     this.createdAt = props.createdAt;
     this.createdBy = props.createdBy;
     this.updatedAt = props.updatedAt;

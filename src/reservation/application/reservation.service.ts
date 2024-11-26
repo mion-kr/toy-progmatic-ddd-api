@@ -3,11 +3,8 @@ import { Prisma } from '@prisma/client';
 import { CommonScheduleService } from '../../schedule/application/common-schedule.service';
 import { ScheduleService } from '../../schedule/application/schedule.service';
 import { PrismaService } from '../../shared/prisma/prisma.service';
-import { CommonUserService } from '../../user/application/common.user.service';
-import { UserService } from '../../user/application/user.service';
 import { ReservationEntity } from '../domain/reservation.entity';
 import { ReservationRepository } from '../infrastructure/reservation.repository';
-import { CreatePaymentDto } from '../presentation/dto/request/create-payment.dto';
 import { CreateReservationDto } from '../presentation/dto/request/create-reservation.dto';
 import { FindAllReservationDto } from '../presentation/dto/request/find-all-reservation.dto';
 import { CommonReservationService } from './common.reservation.service';
@@ -21,9 +18,6 @@ export class ReservationService {
 
     private readonly scheduleService: ScheduleService,
     private readonly commonScheduleService: CommonScheduleService,
-
-    private readonly userService: UserService,
-    private readonly commonUserService: CommonUserService,
 
     private readonly paymentService: PaymentService,
 
@@ -39,8 +33,7 @@ export class ReservationService {
       await this.commonScheduleService.validateNotFoundSchedule(schedule);
       await this.commonScheduleService.validateScheduleStatus(schedule);
 
-      const user = await this.userService.findOneBySnsId(userId, tx);
-      await this.commonUserService.validateNotFoundUser(user);
+      schedule.validateForReservation(dto.headCount);
 
       const reservation = ReservationEntity.createNew({
         ...dto,
@@ -71,27 +64,6 @@ export class ReservationService {
       reservation,
     );
     return reservation;
-  }
-
-  /**
-   * 예약 결제
-   */
-  async payment(id: string, dto: CreatePaymentDto, userId: string) {
-    return await this.prismaService.$transaction(async (tx) => {
-      const reservation = await this.reservationRepository.findById(id, tx);
-      await this.commonReservationService.validateNotFoundReservation(
-        reservation,
-      );
-
-      // 예약 결제
-      await reservation.completePayment(userId);
-      const result = await this.reservationRepository.update(reservation, tx);
-
-      // 결제 생성
-      await this.paymentService.create(result.id, dto, userId, tx);
-
-      return await this.reservationRepository.findById(id, tx);
-    });
   }
 
   /**

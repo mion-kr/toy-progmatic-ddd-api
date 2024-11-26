@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
 import { UserService } from '../../user/application/user.service';
+import { UserEntity } from '../../user/domain/user.entity';
 import { UserTokenPayload } from '../interface/user-token-payload.interface';
 import { LoginUserDto } from '../presentation/dto/request/login.dto';
 
@@ -14,16 +15,14 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async verifyUser(snsId: string, password: string) {
+  async verifyUser(snsId: string, password: string): Promise<UserEntity> {
     const user = await this.userService.findOneBySnsId(snsId);
     const isValidPassword = await user.isValidPassword(password);
     if (!isValidPassword) {
       throw new UnauthorizedException('Invalid password');
     }
 
-    const { password: _, ...result } = user;
-
-    return result;
+    return user;
   }
 
   async loginUser(dto: LoginUserDto, response: Response) {

@@ -12,9 +12,12 @@ export class UserLoginStrategy extends PassportStrategy(
     super({ usernameField: 'snsId' });
   }
 
-  async validate(snsId: string, password: string) {
+  async validate(snsId: string, password: string): Promise<any> {
     try {
-      return await this.authService.verifyUser(snsId, password);
+      const { password: _, ...userWithoutPassword } =
+        await this.authService.verifyUser(snsId, password);
+
+      return userWithoutPassword;
     } catch (err) {
       throw new UnauthorizedException(err);
     }

@@ -1,6 +1,6 @@
+import { createId } from '@paralleldrive/cuid2';
 import { ScheduleFish } from '@prisma/client';
 import { Exclude, Expose } from 'class-transformer';
-import * as cuid from 'cuid';
 import {
   AbstractOptionalProps,
   AbstractSchema,
@@ -27,7 +27,7 @@ export class ScheduleFishEntity extends AbstractSchema implements ScheduleFish {
       AbstractOptionalProps,
   ): ScheduleFishEntity {
     const entity = new ScheduleFishEntity({
-      id: cuid(),
+      id: createId(),
       ...props,
       createdAt: new Date(),
       updatedBy: props.createdBy,

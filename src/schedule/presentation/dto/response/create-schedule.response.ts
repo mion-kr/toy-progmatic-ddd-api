@@ -17,6 +17,7 @@ export class CreateScheduleResponse extends PickType(CreateScheduleDto, [
 ] as const) {
   id: string;
   fishes: CreateScheduleFishResponse[];
+  totalReservationHeadCount: number;
 
   constructor(partial: ScheduleEntity) {
     super();
@@ -33,6 +34,7 @@ export class CreateScheduleResponse extends PickType(CreateScheduleDto, [
     this.fishes = partial?.fishes?.map(
       (scheduleFish) => new CreateScheduleFishResponse(scheduleFish),
     );
+    this.totalReservationHeadCount = partial.totalReservationHeadCount;
   }
 }
 

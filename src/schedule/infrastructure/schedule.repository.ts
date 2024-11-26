@@ -22,6 +22,9 @@ export class ScheduleRepository implements IScheduleRepository {
         fishes: {
           where: { deletedAt: null },
         },
+        reservations: {
+          where: { deletedAt: null },
+        },
       },
     });
 
@@ -47,6 +50,9 @@ export class ScheduleRepository implements IScheduleRepository {
       where: { id, deletedAt: null },
       include: {
         fishes: {
+          where: { deletedAt: null },
+        },
+        reservations: {
           where: { deletedAt: null },
         },
       },

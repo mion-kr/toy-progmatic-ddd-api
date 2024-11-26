@@ -1,7 +1,7 @@
 import { BadRequestException } from '@nestjs/common';
+import { createId } from '@paralleldrive/cuid2';
 import { Payment } from '@prisma/client';
 import { Exclude, Expose } from 'class-transformer';
-import * as cuid from 'cuid';
 import {
   AbstractOptionalProps,
   AbstractSchema,
@@ -28,7 +28,7 @@ export class PaymentEntity extends AbstractSchema implements Payment {
       AbstractOptionalProps,
   ): PaymentEntity {
     const entity = new PaymentEntity({
-      id: cuid(),
+      id: createId(),
       ...props,
       createdAt: new Date(),
       updatedBy: props.createdBy,
