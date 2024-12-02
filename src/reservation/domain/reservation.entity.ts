@@ -12,6 +12,7 @@ import {
   AbstractOptionalProps,
   AbstractSchema,
 } from '../../shared/schema/abstract.schema';
+import { CanceledEvent } from '../application/events/canceled.event-handler';
 import { PaymentCompletedEvent } from '../application/events/payment-completed.event-handler';
 import { PaymentEntity } from './payment.entity';
 
@@ -104,6 +105,8 @@ export class ReservationEntity extends AbstractSchema implements Reservation {
 
     this._status = ReservationStatus.CANCELLED;
     this.setUpdatedInfo(userId);
+
+    this.apply(new CanceledEvent(this));
   }
 
   async delete(deletedBy: string): Promise<void> {

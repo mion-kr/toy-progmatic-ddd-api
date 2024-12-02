@@ -17,6 +17,8 @@ import { RolesGuard } from '../../auth/guards/roles-guard';
 import { Roles } from '../../shared/decorators/role.decorator';
 import { User } from '../../shared/decorators/user.decorator';
 import { UserEntity } from '../../user/domain/user.entity';
+import { CancelReservationCommand } from '../application/commands/cancel-reservation.command-handler';
+import { CreateReservationCommand } from '../application/commands/create-reservation.command-handler';
 import { PaymentReservationCommand } from '../application/commands/payment-reservation.command-handler';
 import { ReservationService } from '../application/reservation.service';
 import { CreatePaymentDto } from './dto/request/create-payment.dto';
@@ -54,7 +56,9 @@ export class ReservationController {
   })
   @Roles(RoleType.USER)
   async create(@Body() dto: CreateReservationDto, @User() user: UserEntity) {
-    const reservation = await this.reservationService.create(dto, user.snsId);
+    const reservation = await this.commandBus.execute(
+      new CreateReservationCommand({ dto, userId: user.snsId }),
+    );
     return new CreateReservationResponse(reservation);
   }
 
@@ -120,7 +124,9 @@ export class ReservationController {
   })
   @Roles(RoleType.USER)
   async cancel(@Param('id') id: string, @User() user: UserEntity) {
-    const reservation = await this.reservationService.cancel(id, user.snsId);
+    const reservation = await this.commandBus.execute(
+      new CancelReservationCommand({ id, userId: user.snsId }),
+    );
     return new DeleteReservationResponse(reservation);
   }
 }
