@@ -20,7 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "prisma:local-migrate": "dotenv -e .env_local -- npx prisma migrate dev --schema=./src/shared/prisma/schema.prisma",
     "prisma:local-resolve": "dotenv -e .env_local -- npx prisma migrate resolve --schema=./src/shared/prisma/schema.prisma",
-    "prisma:local-generate": "dotenv -e .env_local -- npx prisma generate --schema=./src/shared/prisma/schema.prisma",
+    "prisma:generate": "dotenv -e .env_local -- npx prisma generate --schema=./src/shared/prisma/schema.prisma",
     "prisma:local-status": "dotenv -e .env_local -- npx prisma migrate status --schema=./src/shared/prisma/schema.prisma",
     "prisma:local-deploy": "dotenv -e .env_local -- npx prisma migrate deploy --schema=./src/shared/prisma/schema.prisma",
     "prisma:local-reset": "dotenv -e .env_local -- npx prisma migrate reset --schema=./src/shared/prisma/schema.prisma"

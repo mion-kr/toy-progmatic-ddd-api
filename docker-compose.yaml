@@ -1,0 +1,17 @@
+services:
+  toy-progmatic-ddd-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    command: pnpm run start:debug
+    ports:
+      - 3000:3000 # port for the app
+      - 19229:9229 # port for the debugger
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules # Prisma Client 바이너리 보존을 위해 추가
+    environment:
+      - NODE_ENV=development
+    env_file:
+      - .env_local

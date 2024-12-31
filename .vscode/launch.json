@@ -9,6 +9,18 @@
       "name": "debug",
       "request": "launch",
       "type": "node-terminal"
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "debug:toy-progmatic-ddd-api",
+      "address": "localhost",
+      "localRoot": "${workspaceFolder}",
+      "sourceMaps": true,
+      "restart": true,
+      "port": 19229,
+      "remoteRoot": "/usr/src/app"
+
     }
   ]
 }
