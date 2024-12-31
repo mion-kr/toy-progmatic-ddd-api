@@ -23,18 +23,15 @@ async function bootstrap() {
     .setDescription('The Toy-Project API description')
     .setVersion('1.0')
     .addCookieAuth('Authentication')
-    // .addCookieAuth('Authentication', {
-    //   type: 'apiKey',
-    //   in: 'cookie',
-    //   name: 'Authentication',
-    // })
-
-    // .addTag('users')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
   const theme = new SwaggerTheme();
   SwaggerModule.setup('api', app, document, {
+    swaggerOptions: {
+      defaultModelsExpandDepth: -1,
+      tagsSorter: 'alpha',
+    },
     customCss: theme.getBuffer(SwaggerThemeNameEnum.GRUVBOX),
   });
 
