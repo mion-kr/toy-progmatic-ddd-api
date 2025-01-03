@@ -9,3 +9,43 @@
   -> 단점: 등록/수정 시 메인데이터만 조회 됩니다. 별도의 조회 쿼리가 서비스 layer에 있어야 합니다.
 - 상위 데이터에서 하위 데이터 조회 시 repository에서 include로 처리 합니다.
 
+
+### 메모
+env의 DATABASE_URL 에서 파라미터 추가 필요
+- ?pgbouncer=true&connection_limit=1
+
+
+## 프롬프트
+
+### 테스트 프롬프트
+```markdown
+# 테스트
+- 테스트 계정 정보
+{
+  "snsId": "1234567890",
+  "password": "abc123"
+}
+- 인증방법
+  - 로그인은 @auth.controller.ts 를 참고 함
+  - jwt 토큰이 반환되면 cookie의 키 'Authentication' 에 토큰을 넣어서 다른 API를 테스트 진행
+
+- API 테스트 룰
+- 목록 조회
+- 등록
+- 등록 후 상세 조회
+- 수정
+- 수정 후 상세 조회하여 데이터 확인
+- 삭제
+- 삭제 후 상세 조회하여 데이터 확인
+
+
+- 목록 조회 시 page, limit 필드는 필수. @find-all.dto.ts
+
+## 테스트 대상 도메인
+- 사용자
+- 상품
+- 스케줄
+- 예약정보
+
+
+```
