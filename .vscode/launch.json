@@ -4,23 +4,26 @@
   // 자세한 내용을 보려면 https://go.microsoft.com/fwlink/?linkid=830387을(를) 방문하세요.
   "version": "0.2.0",
   "configurations": [
+    // 로컬에서 바로 실행
+    // {
+    //   "command": "pnpm run start:debug",
+    //   "name": "debug",
+    //   "request": "launch",
+    //   "type": "node-terminal"
+    // },
+
+    // 도커 컨테이너에 디버그 포트 연결해서 실행
     {
-      "command": "pnpm run start:debug",
-      "name": "debug",
-      "request": "launch",
-      "type": "node-terminal"
-    },
-    {
+
       "type": "node",
       "request": "attach",
-      "name": "debug:toy-progmatic-ddd-api",
+      "name": "debug:progmatic-ddd-api",
       "address": "localhost",
-      "localRoot": "${workspaceFolder}",
+      "port": 19229,
       "sourceMaps": true,
       "restart": true,
-      "port": 19229,
-      "remoteRoot": "/usr/src/app"
-
+      "remoteRoot": "/usr/src/app",
+      "localRoot": "${workspaceFolder}"
     }
   ]
 }
