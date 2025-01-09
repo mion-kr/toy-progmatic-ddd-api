@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["multiSchema", "postgresqlExtensions"]
+  previewFeatures = ["postgresqlExtensions"]
   binaryTargets   = ["native", "debian-openssl-3.0.x"]
 }
 
@@ -8,7 +8,6 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
   directUrl = env("DIRECT_URL") // for supabase
-  schemas  = ["product", "schedule", "reservation", "auth", "user", "common"]
   extensions = [pgcrypto]
 }
 
@@ -17,8 +16,7 @@ enum RoleType {
   PARTNER
   ADMIN
 
-  @@map("ROLE_TYPE")
-  @@schema("auth")
+  @@map("ROLE_TYPE_ENUM")
 }
 
 model Role {
@@ -27,7 +25,6 @@ model Role {
   users           UserRole[]
 
   @@map("ROLE")
-  @@schema("auth")
 }
 
 model UserRole {
@@ -38,9 +35,7 @@ model UserRole {
 
   @@id([userId, roleId])
   @@map("USER_ROLE")
-  @@schema("user")
 }
-
 
 model User {
   snsId           String @id @map("sns_id")
@@ -53,7 +48,6 @@ model User {
   products         Product[]
   roles            UserRole[]
 
-
   createdAt       DateTime @default(now()) @map("created_at")
   createdBy       String @map("created_by")
   updatedAt       DateTime @updatedAt @map("updated_at")
@@ -61,16 +55,14 @@ model User {
   deletedAt       DateTime? @map("deleted_at")
   deletedBy       String? @map("deleted_by")
 
-  @@map("USER") // 실제 테이블 이름
-  @@schema("user")
+  @@map("USER")
 }
 
 enum ProductDisplayStatus {
   DISPLAY       // 노출
   HIDE          // 미노출
 
-  @@map("PRODUCT_STATUS")
-  @@schema("product")
+  @@map("PRODUCT_STATUS_ENUM")
 }
 
 model Product {
@@ -97,7 +89,6 @@ model Product {
   deletedBy       String? @map("deleted_by")
 
   @@map("PRODUCT")
-  @@schema("product")
 }
 
 model ProductFish {
@@ -114,7 +105,6 @@ model ProductFish {
   deletedBy       String? @map("deleted_by")
 
   @@map("PRODUCT_FISH")
-  @@schema("product")
 }
 
 enum ScheduleStatus {
@@ -122,8 +112,7 @@ enum ScheduleStatus {
   CLOSE           // 예약 불가
   WAITING_LAUNCH  // 출조 대기
 
-  @@map("SCHEDULE_STATUS")
-  @@schema("schedule")
+  @@map("SCHEDULE_STATUS_ENUM")
 }
 
 model Schedule {
@@ -152,7 +141,6 @@ model Schedule {
   deletedBy       String? @map("deleted_by")
 
   @@map("SCHEDULE")
-  @@schema("schedule")
 }
 
 model ScheduleFish {
@@ -169,7 +157,6 @@ model ScheduleFish {
   deletedBy       String? @map("deleted_by")
 
   @@map("SCHEDULE_FISH")
-  @@schema("schedule")
 }
 
 enum ReservationStatus {
@@ -177,8 +164,7 @@ enum ReservationStatus {
   COMPLETED         // 완료
   CANCELLED
 
-  @@map("RESERVATION_STATUS")
-  @@schema("reservation")
+  @@map("RESERVATION_STATUS_ENUM")
 }
 
 model Reservation {
@@ -201,7 +187,6 @@ model Reservation {
   deletedBy       String? @map("deleted_by")
 
   @@map("RESERVATION")
-  @@schema("reservation")
 }
 
 model Payment {
@@ -221,7 +206,6 @@ model Payment {
   deletedBy       String? @map("deleted_by")
 
   @@map("PAYMENT")
-  @@schema("reservation")
 }
 
 model Refund {
@@ -232,14 +216,14 @@ model Refund {
   headCount       Int @map("head_count")
 
   @@map("REFUND")
-  @@schema("reservation")
 }
 
 model Code {
   code            String 
   name            String
+  language        String
   codeGroupId     String 
-  codeGroup       CodeGroup @relation(fields: [codeGroupId], references: [codeGroup])
+  codeGroup       CodeGroup @relation(fields: [codeGroupId], references: [codeGroupId])
 
   createdAt       DateTime @default(now()) @map("created_at")
   createdBy       String @map("created_by")
@@ -250,11 +234,10 @@ model Code {
 
   @@id([code, codeGroupId])
   @@map("CODE")
-  @@schema("common")
 }
 
 model CodeGroup {
-  codeGroup       String @id @map("code_group")
+  codeGroupId       String @id @map("code_group")
   name            String
   code            Code[]
 
@@ -266,5 +249,4 @@ model CodeGroup {
   deletedBy       String? @map("deleted_by")
 
   @@map("CODE_GROUP")
-  @@schema("common")
 }

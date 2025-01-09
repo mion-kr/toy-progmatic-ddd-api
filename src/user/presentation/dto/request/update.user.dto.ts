@@ -14,7 +14,7 @@ export class UpdateUserDto extends PartialType(
 ) {
   @ApiProperty({
     description: '권한',
-    type: [UpdateRoleUserDto],
+    type: () => [UpdateRoleUserDto],
   })
   @IsOptional()
   @IsArray()
